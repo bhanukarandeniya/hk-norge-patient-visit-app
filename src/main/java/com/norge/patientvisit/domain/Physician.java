@@ -15,7 +15,7 @@ import java.util.Set;
  * A Physician.
  */
 @Entity
-@Table(name = "physician")
+@Table(name = "physician", uniqueConstraints = @UniqueConstraint(columnNames = {"physician_id"}))
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Physician implements Serializable {
 
@@ -192,7 +192,6 @@ public class Physician implements Serializable {
         return getClass().hashCode();
     }
 
-    // prettier-ignore
     @Override
     public String toString() {
         return "Physician{" +

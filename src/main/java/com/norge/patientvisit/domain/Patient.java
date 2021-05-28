@@ -15,7 +15,7 @@ import java.util.Set;
  * A Patient.
  */
 @Entity
-@Table(name = "patient")
+@Table(name = "patient", uniqueConstraints = @UniqueConstraint(columnNames = {"patient_id"}))
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Patient implements Serializable {
 
