@@ -1,8 +1,9 @@
-package com.mycompany.myapp.domain;
+package com.norge.patientvisit.domain;
 
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -21,15 +22,19 @@ public class Billing implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull
     @Column(name = "visit_id", nullable = false)
     private Integer visitId;
 
+    @NotNull
     @Column(name = "patient_id")
     private String patientId;
 
+    @NotNull
     @Column(name = "physician_id", nullable = false)
     private String physicianId;
 
+    @NotNull
     @Column(name = "billed", nullable = false)
     private Date billed;
 

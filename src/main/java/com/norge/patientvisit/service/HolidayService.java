@@ -1,6 +1,6 @@
-package com.mycompany.myapp.service;
+package com.norge.patientvisit.service;
 
-import com.mycompany.myapp.domain.Holiday;
+import com.norge.patientvisit.domain.Holiday;
 import java.util.List;
 import java.util.Optional;
 

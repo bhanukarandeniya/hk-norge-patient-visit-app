@@ -1,10 +1,11 @@
-package com.mycompany.myapp.domain;
+package com.norge.patientvisit.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashSet;
@@ -24,25 +25,31 @@ public class Patient implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull
     @Column(name = "patient_id", nullable = false)
     private String patientId;
 
+    @NotNull
     @Column(name = "name", nullable = false)
     private String name;
 
+    @NotNull
     @Column(name = "dob", nullable = false)
     private Date dob;
 
+    @NotNull
     @Column(name = "gender", nullable = false)
     private Integer gender;
 
+    @NotNull
     @Column(name = "created", nullable = false)
     private Date created;
 
+    @NotNull
     @Column(name = "modified")
     private Date modified;
 
-
+    @NotNull
     @Column(name = "created_by", nullable = false)
     private Integer createdBy;
 
@@ -186,7 +193,6 @@ public class Patient implements Serializable {
         this.visits = visits;
     }
 
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
     public boolean equals(Object o) {
@@ -201,7 +207,6 @@ public class Patient implements Serializable {
 
     @Override
     public int hashCode() {
-        // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
         return getClass().hashCode();
     }
 

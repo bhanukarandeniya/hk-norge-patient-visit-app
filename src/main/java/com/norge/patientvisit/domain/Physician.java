@@ -1,17 +1,15 @@
-package com.mycompany.myapp.domain;
+package com.norge.patientvisit.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.time.Date;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-import javax.persistence.*;
-import javax.validation.constraints.*;
-
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * A Physician.
@@ -27,21 +25,26 @@ public class Physician implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull
     @Column(name = "physician_id", nullable = false)
     private String physicianId;
 
+    @NotNull
     @Column(name = "name", nullable = false)
     private String name;
 
+    @NotNull
     @Column(name = "created", nullable = false)
     private Date created;
 
     @Column(name = "modified")
     private Date modified;
 
+    @NotNull
     @Column(name = "created_by", nullable = false)
     private Integer createdBy;
 
+    @NotNull
     @Column(name = "modified_by", nullable = false)
     private Integer modifiedBy;
 
@@ -172,7 +175,6 @@ public class Physician implements Serializable {
         this.visits = visits;
     }
 
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
     public boolean equals(Object o) {
@@ -187,7 +189,6 @@ public class Physician implements Serializable {
 
     @Override
     public int hashCode() {
-        // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
         return getClass().hashCode();
     }
 

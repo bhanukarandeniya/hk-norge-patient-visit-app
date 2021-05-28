@@ -1,6 +1,6 @@
-package com.mycompany.myapp.repository;
+package com.norge.patientvisit.repository;
 
-import com.mycompany.myapp.domain.Physician;
+import com.norge.patientvisit.domain.Physician;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.Repository;
 

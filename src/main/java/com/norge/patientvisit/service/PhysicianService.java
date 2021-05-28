@@ -1,6 +1,6 @@
-package com.mycompany.myapp.service;
+package com.norge.patientvisit.service;
 
-import com.mycompany.myapp.domain.Physician;
+import com.norge.patientvisit.domain.Physician;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

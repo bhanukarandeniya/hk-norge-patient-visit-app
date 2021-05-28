@@ -1,9 +1,10 @@
-package com.mycompany.myapp.domain;
+package com.norge.patientvisit.domain;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -21,21 +22,23 @@ public class Holiday implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "visit_date_time", nullable = false)
-    private Date visitDateTime;
+    @NotNull
+    @Column(name = "holiday_date", nullable = false)
+    private Date holidayDate;
 
-    @Column(name = "reason", nullable = false)
-    private String reason;
-
+    @NotNull
     @Column(name = "created", nullable = false)
     private Date created;
 
+    @NotNull
     @Column(name = "modified")
     private Date modified;
 
+    @NotNull
     @Column(name = "created_by", nullable = false)
     private Integer createdBy;
 
+    @NotNull
     @Column(name = "modified_by", nullable = false)
     private Integer modifiedBy;
 
@@ -52,30 +55,12 @@ public class Holiday implements Serializable {
         return this;
     }
 
-    public Date getVisitDateTime() {
-        return this.visitDateTime;
+    public Date getHolidayDate() {
+        return holidayDate;
     }
 
-    public Holiday visitDateTime(Date visitDateTime) {
-        this.visitDateTime = visitDateTime;
-        return this;
-    }
-
-    public void setVisitDateTime(Date visitDateTime) {
-        this.visitDateTime = visitDateTime;
-    }
-
-    public String getReason() {
-        return this.reason;
-    }
-
-    public Holiday reason(String reason) {
-        this.reason = reason;
-        return this;
-    }
-
-    public void setReason(String reason) {
-        this.reason = reason;
+    public void setHolidayDate(Date holidayDate) {
+        this.holidayDate = holidayDate;
     }
 
     public Date getCreated() {
@@ -147,17 +132,15 @@ public class Holiday implements Serializable {
         return getClass().hashCode();
     }
 
-    // prettier-ignore
     @Override
     public String toString() {
         return "Holiday{" +
-                "id=" + getId() +
-                ", visitDateTime='" + getVisitDateTime() + "'" +
-                ", reason='" + getReason() + "'" +
-                ", created='" + getCreated() + "'" +
-                ", modified='" + getModified() + "'" +
-                ", createdBy=" + getCreatedBy() +
-                ", modifiedBy=" + getModifiedBy() +
-                "}";
+                "id=" + id +
+                ", holidayDate=" + holidayDate +
+                ", created=" + created +
+                ", modified=" + modified +
+                ", createdBy=" + createdBy +
+                ", modifiedBy=" + modifiedBy +
+                '}';
     }
 }

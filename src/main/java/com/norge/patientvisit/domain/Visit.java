@@ -1,10 +1,11 @@
-package com.mycompany.myapp.domain;
+package com.norge.patientvisit.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -20,21 +21,27 @@ public class Visit implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "visit_date_time", nullable = false)
-    private Date visitDateTime;
-    
+    @NotNull
+    @Column(name = "visit_date", nullable = false)
+    private Date visitDate;
+
+    @NotNull
     @Column(name = "reason", nullable = false)
     private String reason;
 
+    @NotNull
     @Column(name = "created", nullable = false)
     private Date created;
 
+    @NotNull
     @Column(name = "modified")
     private Date modified;
-    
+
+    @NotNull
     @Column(name = "created_by", nullable = false)
     private Integer createdBy;
-    
+
+    @NotNull
     @Column(name = "modified_by", nullable = false)
     private Integer modifiedBy;
 
@@ -59,17 +66,17 @@ public class Visit implements Serializable {
         return this;
     }
 
-    public Date getVisitDateTime() {
-        return this.visitDateTime;
+    public Date getvisitDate() {
+        return this.visitDate;
     }
 
-    public Visit visitDateTime(Date visitDateTime) {
-        this.visitDateTime = visitDateTime;
+    public Visit visitDate(Date visitDate) {
+        this.visitDate = visitDate;
         return this;
     }
 
-    public void setVisitDateTime(Date visitDateTime) {
-        this.visitDateTime = visitDateTime;
+    public void setvisitDate(Date visitDate) {
+        this.visitDate = visitDate;
     }
 
     public String getReason() {
@@ -185,7 +192,7 @@ public class Visit implements Serializable {
     public String toString() {
         return "Visit{" +
             "id=" + getId() +
-            ", visitDateTime='" + getVisitDateTime() + "'" +
+            ", visitDate='" + getvisitDate() + "'" +
             ", reason='" + getReason() + "'" +
             ", created='" + getCreated() + "'" +
             ", modified='" + getModified() + "'" +
