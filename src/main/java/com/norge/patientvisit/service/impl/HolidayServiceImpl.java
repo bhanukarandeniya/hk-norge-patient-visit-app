@@ -56,6 +56,9 @@ public class HolidayServiceImpl implements HolidayService {
                             if (holiday.getModifiedBy() != null) {
                                 existingHoliday.setModifiedBy(holiday.getModifiedBy());
                             }
+                            if (holiday.getActive() != null) {
+                                existingHoliday.setActive(holiday.getActive());
+                            }
 
                             return existingHoliday;
                         }
@@ -67,7 +70,7 @@ public class HolidayServiceImpl implements HolidayService {
     @Transactional(readOnly = true)
     public Page<Holiday> findAll(Pageable pageable) {
         log.debug("Request to get all Holidays");
-        return holidayRepository.findAll(pageable);
+        return holidayRepository.findHolidaysByActive(pageable,true);
     }
 
 

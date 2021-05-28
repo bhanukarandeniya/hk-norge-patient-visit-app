@@ -150,11 +150,12 @@ public class HolidayController {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of holidays in body.
      */
     @GetMapping("/holidays")
-    public ResponseEntity<_HolidayPageDto> getAllHolidays(Pageable pageable) {
+    public ResponseEntity<_HolidayPageDto> getAllHolidays(Pageable pageable) throws ClassNotFoundException {
         log.debug("REST request to get a page Holidays");
         Page<Holiday> page = holidayService.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity.ok().headers(headers).body(new _HolidayPageDto().setList(page.getContent()));
+        return ResponseEntity.ok().headers(headers).
+                body(new _HolidayPageDto().setList(dtoDtoConverter.convertToList(page.getContent(), _HolidayDto.class)));
     }
 
     /**
@@ -179,7 +180,9 @@ public class HolidayController {
     @DeleteMapping("/holidays/{id}")
     public ResponseEntity<Void> deleteHoliday(@PathVariable Long id) {
         log.debug("REST request to delete Holiday : {}", id);
-        holidayService.delete(id);
+        Holiday entity = holidayService.findOne(id).get();
+        entity.setActive(false);
+        holidayService.partialUpdate(entity);
         return ResponseEntity
                 .noContent()
                 .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))

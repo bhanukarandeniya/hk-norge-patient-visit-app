@@ -1,19 +1,17 @@
 package com.norge.patientvisit.dto;
 
-import com.norge.patientvisit.domain.Holiday;
-
 import java.io.Serializable;
 import java.util.List;
 
 public class _HolidayPageDto implements Serializable {
 
-    private List<Holiday> list;
+    private List<_HolidayDto> list;
 
-    public List<Holiday> getList() {
+    public List<_HolidayDto> getList() {
         return list;
     }
 
-    public _HolidayPageDto setList(List<Holiday> list) {
+    public _HolidayPageDto setList(List<_HolidayDto> list) {
         this.list = list;
         return this;
     }

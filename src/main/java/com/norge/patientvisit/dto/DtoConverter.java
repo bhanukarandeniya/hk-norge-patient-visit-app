@@ -3,6 +3,9 @@ package com.norge.patientvisit.dto;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Component
 public class DtoConverter<E, D> {
 
@@ -21,6 +24,14 @@ public class DtoConverter<E, D> {
         E value = (E) modelMapper.map(dto, c);
         System.out.println(value.toString());
         return value;
+    }
+
+    public List<D> convertToList(List<E> entityList, Class c) throws ClassNotFoundException {
+        List<D> list = new ArrayList<>();
+        for (E e : entityList) {
+            list.add(convertToDto(e, c));
+        }
+        return list;
     }
 
 }
