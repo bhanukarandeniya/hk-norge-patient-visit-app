@@ -41,8 +41,8 @@ public class Billing implements Serializable {
     private Date billed;
 
     @NotNull
-    @Column(name = "active_record", nullable = false, columnDefinition = "TINYINT  default 1")
-    private Boolean active;
+    @Column(name = "active_record", nullable = false)
+    private boolean active;
 
     public Long getId() {
         return id;

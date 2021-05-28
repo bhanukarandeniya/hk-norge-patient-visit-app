@@ -54,8 +54,8 @@ public class Patient implements Serializable {
     private Integer createdBy;
 
     @NotNull
-    @Column(name = "active_record", nullable = false, columnDefinition = "TINYINT  default 1")
-    private Boolean active;
+    @Column(name = "active_record", nullable = false)
+    private boolean active;
 
     @OneToMany(mappedBy = "patientId")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)

@@ -18,7 +18,7 @@ spring:
 
 norge:
   clientApp:
-    name: test
+         name: test
 
 server:
   port: 8080

@@ -7,7 +7,7 @@ logging:
 spring:
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:mysql://localhost:3306/patient_visit_app?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&createDatabaseIfNotExist=true
+    url: jdbc:mysql://localhost:3306/patient_visit?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&createDatabaseIfNotExist=true
     username: root
     password: mysql
     hikari:
@@ -16,10 +16,11 @@ spring:
   jpa:
     show-sql: true
 
-jhipster:
-    clientApp:
-        name: test
+norge:
+  clientApp:
+         name: test
 
 server:
   port: 8080
 
+#  http://localhost:8080/swagger-ui/

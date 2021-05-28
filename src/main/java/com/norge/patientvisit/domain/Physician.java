@@ -49,8 +49,8 @@ public class Physician implements Serializable {
     private Integer modifiedBy;
 
     @NotNull
-    @Column(name = "active_record", nullable = false, columnDefinition = "TINYINT  default 1")
-    private Boolean active;
+    @Column(name = "active_record", nullable = false)
+    private boolean active;
 
     @OneToMany(mappedBy = "physicianId")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)

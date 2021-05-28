@@ -46,8 +46,8 @@ public class Visit implements Serializable {
     private Integer modifiedBy;
 
     @NotNull
-    @Column(name = "active_record", nullable = false, columnDefinition = "TINYINT  default 1")
-    private Boolean active;
+    @Column(name = "active_record", nullable = false)
+    private boolean active;
 
     @ManyToOne
     @JsonIgnoreProperties(value = { "visits" }, allowSetters = true)

@@ -1,7 +1,9 @@
 package com.norge.patientvisit.service;
 
 import com.norge.patientvisit.domain.Holiday;
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.Optional;
 
 /**
@@ -27,9 +29,10 @@ public interface HolidayService {
     /**
      * Get all the holidays.
      *
+     * @param pageable the pagination information.
      * @return the list of entities.
      */
-    List<Holiday> findAll();
+    Page<Holiday> findAll(Pageable pageable);
 
     /**
      * Get the "id" holiday.

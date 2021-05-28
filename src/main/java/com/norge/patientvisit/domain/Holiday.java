@@ -42,7 +42,7 @@ public class Holiday implements Serializable {
     @Column(name = "modified_by", nullable = false)
     private Integer modifiedBy;
 
-    @Column(name = "active_record", columnDefinition = "TINYINT  default 1")
+    @Column(name = "active_record", nullable = false)
     private boolean active;
 
     public Long getId() {
