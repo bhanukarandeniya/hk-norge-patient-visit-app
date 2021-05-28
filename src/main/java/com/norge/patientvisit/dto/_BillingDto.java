@@ -5,7 +5,7 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
 
-public class BillingDto implements Serializable {
+public class _BillingDto implements Serializable {
 
     private Long id;
 

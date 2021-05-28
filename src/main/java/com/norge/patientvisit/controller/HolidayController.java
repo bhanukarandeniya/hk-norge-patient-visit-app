@@ -2,6 +2,9 @@ package com.norge.patientvisit.controller;
 
 import com.norge.patientvisit.controller.errors.BadRequestAlertException;
 import com.norge.patientvisit.domain.Holiday;
+import com.norge.patientvisit.dto.ClassNameEnum;
+import com.norge.patientvisit.dto.DtoConverter;
+import com.norge.patientvisit.dto._HolidayDto;
 import com.norge.patientvisit.repository.HolidayRepository;
 import com.norge.patientvisit.service.HolidayService;
 import org.slf4j.Logger;
@@ -38,9 +41,13 @@ public class HolidayController {
 
     private final HolidayRepository holidayRepository;
 
-    public HolidayController(HolidayService holidayService, HolidayRepository holidayRepository) {
+    private final DtoConverter<Holiday, _HolidayDto> dtoDtoConverter;
+
+    public HolidayController(HolidayService holidayService, HolidayRepository holidayRepository,
+                             DtoConverter<Holiday, _HolidayDto> dtoDtoConverter) {
         this.holidayService = holidayService;
         this.holidayRepository = holidayRepository;
+        this.dtoDtoConverter = dtoDtoConverter;
     }
 
     /**
@@ -51,22 +58,22 @@ public class HolidayController {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/holidays")
-    public ResponseEntity<Holiday> createHoliday(@Valid @RequestBody Holiday holiday) throws URISyntaxException {
+    public ResponseEntity<_HolidayDto> createHoliday(@Valid @RequestBody _HolidayDto holiday) throws URISyntaxException, ClassNotFoundException {
         log.debug("REST request to save Holiday : {}", holiday);
         if (holiday.getId() != null) {
             throw new BadRequestAlertException("A new holiday cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        Holiday result = holidayService.save(holiday);
+        Holiday result = holidayService.save(dtoDtoConverter.convertToEntity(holiday, Holiday.class));
         return ResponseEntity
-            .created(new URI("/api/holidays/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
-            .body(result);
+                .created(new URI("/api/holidays/" + result.getId()))
+                .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+                .body(dtoDtoConverter.convertToDto(result, _HolidayDto.class));
     }
 
     /**
      * {@code PUT  /holidays/:id} : Updates an existing holiday.
      *
-     * @param id the id of the holiday to save.
+     * @param id      the id of the holiday to save.
      * @param holiday the holiday to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated holiday,
      * or with status {@code 400 (Bad Request)} if the holiday is not valid,
@@ -74,10 +81,10 @@ public class HolidayController {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/holidays/{id}")
-    public ResponseEntity<Holiday> updateHoliday(
-        @PathVariable(value = "id", required = false) final Long id,
-        @Valid @RequestBody Holiday holiday
-    ) throws URISyntaxException {
+    public ResponseEntity<_HolidayDto> updateHoliday(
+            @PathVariable(value = "id", required = false) final Long id,
+            @Valid @RequestBody _HolidayDto holiday
+    ) throws URISyntaxException, ClassNotFoundException {
         log.debug("REST request to update Holiday : {}, {}", id, holiday);
         if (holiday.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -90,17 +97,17 @@ public class HolidayController {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        Holiday result = holidayService.save(holiday);
+        Holiday result = holidayService.save(dtoDtoConverter.convertToEntity(holiday, Holiday.class));
         return ResponseEntity
-            .ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, holiday.getId().toString()))
-            .body(result);
+                .ok()
+                .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, holiday.getId().toString()))
+                .body(dtoDtoConverter.convertToDto(result, _HolidayDto.class));
     }
 
     /**
      * {@code PATCH  /holidays/:id} : Partial updates given fields of an existing holiday, field will ignore if it is null
      *
-     * @param id the id of the holiday to save.
+     * @param id      the id of the holiday to save.
      * @param holiday the holiday to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated holiday,
      * or with status {@code 400 (Bad Request)} if the holiday is not valid,
@@ -109,10 +116,10 @@ public class HolidayController {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/holidays/{id}", consumes = "application/merge-patch+json")
-    public ResponseEntity<Holiday> partialUpdateHoliday(
-        @PathVariable(value = "id", required = false) final Long id,
-        @NotNull @RequestBody Holiday holiday
-    ) throws URISyntaxException {
+    public ResponseEntity<_HolidayDto> partialUpdateHoliday(
+            @PathVariable(value = "id", required = false) final Long id,
+            @NotNull @RequestBody _HolidayDto holiday
+    ) throws URISyntaxException, ClassNotFoundException {
         log.debug("REST request to partial update Holiday partially : {}, {}", id, holiday);
         if (holiday.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -125,11 +132,11 @@ public class HolidayController {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        Optional<Holiday> result = holidayService.partialUpdate(holiday);
+        Optional<Holiday> result = holidayService.partialUpdate(dtoDtoConverter.convertToEntity(holiday, Holiday.class));
 
         return ResponseUtil.wrapOrNotFound(
-            result,
-            HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, holiday.getId().toString())
+                Optional.of(dtoDtoConverter.convertToDto(result.get(), _HolidayDto.class)),
+                HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, holiday.getId().toString())
         );
     }
 
@@ -151,10 +158,10 @@ public class HolidayController {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the holiday, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/holidays/{id}")
-    public ResponseEntity<Holiday> getHoliday(@PathVariable Long id) {
+    public ResponseEntity<_HolidayDto> getHoliday(@PathVariable Long id) throws ClassNotFoundException {
         log.debug("REST request to get Holiday : {}", id);
         Optional<Holiday> holiday = holidayService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(holiday);
+        return ResponseUtil.wrapOrNotFound(Optional.of(dtoDtoConverter.convertToDto(holiday.get(), _HolidayDto.class)));
     }
 
     /**
@@ -168,8 +175,8 @@ public class HolidayController {
         log.debug("REST request to delete Holiday : {}", id);
         holidayService.delete(id);
         return ResponseEntity
-            .noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-            .build();
+                .noContent()
+                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+                .build();
     }
 }

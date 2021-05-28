@@ -1,6 +1,6 @@
 package com.norge.patientvisit.dto;
 
-public enum ClassName {
+public enum ClassNameEnum {
 
     BillingDto("BillingDto"), HolidayDto("HolidayDto"),
     PatientDto("PatientDto"), PhysicianDto("PhysicianDto"), VisitDto("VisitDto"),
@@ -10,7 +10,7 @@ public enum ClassName {
 
     private final String value;
 
-    ClassName(String value) {
+    ClassNameEnum(String value) {
         this.value = value;
     }
 
