@@ -63,15 +63,15 @@ public class PatientController {
         }
         Patient result = patientService.save(patient);
         return ResponseEntity
-            .created(new URI("/api/patients/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
-            .body(result);
+                .created(new URI("/api/patients/" + result.getId()))
+                .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+                .body(result);
     }
 
     /**
      * {@code PUT  /patients/:id} : Updates an existing patient.
      *
-     * @param id the id of the patient to save.
+     * @param id      the id of the patient to save.
      * @param patient the patient to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated patient,
      * or with status {@code 400 (Bad Request)} if the patient is not valid,
@@ -80,8 +80,8 @@ public class PatientController {
      */
     @PutMapping("/patients/{id}")
     public ResponseEntity<Patient> updatePatient(
-        @PathVariable(value = "id", required = false) final Long id,
-        @Valid @RequestBody Patient patient
+            @PathVariable(value = "id", required = false) final Long id,
+            @Valid @RequestBody Patient patient
     ) throws URISyntaxException {
         log.debug("REST request to update Patient : {}, {}", id, patient);
         if (patient.getId() == null) {
@@ -97,15 +97,15 @@ public class PatientController {
 
         Patient result = patientService.save(patient);
         return ResponseEntity
-            .ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, patient.getId().toString()))
-            .body(result);
+                .ok()
+                .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, patient.getId().toString()))
+                .body(result);
     }
 
     /**
      * {@code PATCH  /patients/:id} : Partial updates given fields of an existing patient, field will ignore if it is null
      *
-     * @param id the id of the patient to save.
+     * @param id      the id of the patient to save.
      * @param patient the patient to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated patient,
      * or with status {@code 400 (Bad Request)} if the patient is not valid,
@@ -115,8 +115,8 @@ public class PatientController {
      */
     @PatchMapping(value = "/patients/{id}", consumes = "application/merge-patch+json")
     public ResponseEntity<Patient> partialUpdatePatient(
-        @PathVariable(value = "id", required = false) final Long id,
-        @NotNull @RequestBody Patient patient
+            @PathVariable(value = "id", required = false) final Long id,
+            @NotNull @RequestBody Patient patient
     ) throws URISyntaxException {
         log.debug("REST request to partial update Patient partially : {}, {}", id, patient);
         if (patient.getId() == null) {
@@ -133,8 +133,8 @@ public class PatientController {
         Optional<Patient> result = patientService.partialUpdate(patient);
 
         return ResponseUtil.wrapOrNotFound(
-            result,
-            HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, patient.getId().toString())
+                result,
+                HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, patient.getId().toString())
         );
     }
 
@@ -176,8 +176,8 @@ public class PatientController {
         log.debug("REST request to delete Patient : {}", id);
         patientService.delete(id);
         return ResponseEntity
-            .noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-            .build();
+                .noContent()
+                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+                .build();
     }
 }

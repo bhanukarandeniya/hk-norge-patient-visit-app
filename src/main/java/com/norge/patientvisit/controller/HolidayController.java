@@ -4,6 +4,7 @@ import com.norge.patientvisit.controller.errors.BadRequestAlertException;
 import com.norge.patientvisit.domain.Holiday;
 import com.norge.patientvisit.dto.DtoConverter;
 import com.norge.patientvisit.dto._HolidayDto;
+import com.norge.patientvisit.dto._HolidayPageDto;
 import com.norge.patientvisit.repository.HolidayRepository;
 import com.norge.patientvisit.service.HolidayService;
 import org.slf4j.Logger;
@@ -23,7 +24,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -150,11 +150,11 @@ public class HolidayController {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of holidays in body.
      */
     @GetMapping("/holidays")
-    public ResponseEntity<List<Holiday>> getAllHolidays(Pageable pageable) {
+    public ResponseEntity<_HolidayPageDto> getAllHolidays(Pageable pageable) {
         log.debug("REST request to get a page Holidays");
         Page<Holiday> page = holidayService.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity.ok().headers(headers).body(page.getContent());
+        return ResponseEntity.ok().headers(headers).body(new _HolidayPageDto().setList(page.getContent()));
     }
 
     /**

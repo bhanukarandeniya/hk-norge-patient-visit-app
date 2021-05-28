@@ -1,9 +1,10 @@
 package com.norge.patientvisit.service;
 
 import com.norge.patientvisit.domain.Patient;
-import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
+import java.util.Optional;
 
 /**
  * Service Interface for managing {@link Patient}.

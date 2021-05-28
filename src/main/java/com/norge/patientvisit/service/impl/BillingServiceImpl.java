@@ -3,12 +3,13 @@ package com.norge.patientvisit.service.impl;
 import com.norge.patientvisit.domain.Billing;
 import com.norge.patientvisit.repository.BillingRepository;
 import com.norge.patientvisit.service.BillingService;
-import java.util.List;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Service Implementation for managing {@link Billing}.
@@ -36,26 +37,26 @@ public class BillingServiceImpl implements BillingService {
         log.debug("Request to partially update Billing : {}", billing);
 
         return billingRepository
-            .findById(billing.getId())
-            .map(
-                existingBilling -> {
-                    if (billing.getVisitId() != null) {
-                        existingBilling.setVisitId(billing.getVisitId());
-                    }
-                    if (billing.getPatientId() != null) {
-                        existingBilling.setPatientId(billing.getPatientId());
-                    }
-                    if (billing.getPhysicianId() != null) {
-                        existingBilling.setPhysicianId(billing.getPhysicianId());
-                    }
-                    if (billing.getBilled() != null) {
-                        existingBilling.setBilled(billing.getBilled());
-                    }
+                .findById(billing.getId())
+                .map(
+                        existingBilling -> {
+                            if (billing.getVisitId() != null) {
+                                existingBilling.setVisitId(billing.getVisitId());
+                            }
+                            if (billing.getPatientId() != null) {
+                                existingBilling.setPatientId(billing.getPatientId());
+                            }
+                            if (billing.getPhysicianId() != null) {
+                                existingBilling.setPhysicianId(billing.getPhysicianId());
+                            }
+                            if (billing.getBilled() != null) {
+                                existingBilling.setBilled(billing.getBilled());
+                            }
 
-                    return existingBilling;
-                }
-            )
-            .map(billingRepository::save);
+                            return existingBilling;
+                        }
+                )
+                .map(billingRepository::save);
     }
 
     @Override

@@ -1,13 +1,13 @@
 package com.norge.patientvisit.domain;
 
-import java.io.Serializable;
-import java.util.Date;
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Subselect;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * A Billing.

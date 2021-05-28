@@ -50,11 +50,11 @@ public class Visit implements Serializable {
     private boolean active;
 
     @ManyToOne
-    @JsonIgnoreProperties(value = { "visits" }, allowSetters = true)
+    @JsonIgnoreProperties(value = {"visits"}, allowSetters = true)
     private Patient patientId;
 
     @ManyToOne
-    @JsonIgnoreProperties(value = { "visits" }, allowSetters = true)
+    @JsonIgnoreProperties(value = {"visits"}, allowSetters = true)
     private Physician physicianId;
 
     public Long getId() {
@@ -197,13 +197,13 @@ public class Visit implements Serializable {
     @Override
     public String toString() {
         return "Visit{" +
-            "id=" + getId() +
-            ", visitDate='" + getVisitDate() + "'" +
-            ", reason='" + getReason() + "'" +
-            ", created='" + getCreated() + "'" +
-            ", modified='" + getModified() + "'" +
-            ", createdBy=" + getCreatedBy() +
-            ", modifiedBy=" + getModifiedBy() +
-            "}";
+                "id=" + getId() +
+                ", visitDate='" + getVisitDate() + "'" +
+                ", reason='" + getReason() + "'" +
+                ", created='" + getCreated() + "'" +
+                ", modified='" + getModified() + "'" +
+                ", createdBy=" + getCreatedBy() +
+                ", modifiedBy=" + getModifiedBy() +
+                "}";
     }
 }

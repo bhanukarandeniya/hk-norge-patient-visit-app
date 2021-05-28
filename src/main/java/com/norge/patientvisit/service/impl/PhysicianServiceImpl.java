@@ -3,14 +3,14 @@ package com.norge.patientvisit.service.impl;
 import com.norge.patientvisit.domain.Physician;
 import com.norge.patientvisit.repository.PhysicianRepository;
 import com.norge.patientvisit.service.PhysicianService;
-import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 /**
  * Service Implementation for managing {@link Physician}.
@@ -38,32 +38,32 @@ public class PhysicianServiceImpl implements PhysicianService {
         log.debug("Request to partially update Physician : {}", physician);
 
         return physicianRepository
-            .findById(physician.getId())
-            .map(
-                existingPhysician -> {
-                    if (physician.getPhysicianId() != null) {
-                        existingPhysician.setPhysicianId(physician.getPhysicianId());
-                    }
-                    if (physician.getName() != null) {
-                        existingPhysician.setName(physician.getName());
-                    }
-                    if (physician.getCreated() != null) {
-                        existingPhysician.setCreated(physician.getCreated());
-                    }
-                    if (physician.getModified() != null) {
-                        existingPhysician.setModified(physician.getModified());
-                    }
-                    if (physician.getCreatedBy() != null) {
-                        existingPhysician.setCreatedBy(physician.getCreatedBy());
-                    }
-                    if (physician.getModifiedBy() != null) {
-                        existingPhysician.setModifiedBy(physician.getModifiedBy());
-                    }
+                .findById(physician.getId())
+                .map(
+                        existingPhysician -> {
+                            if (physician.getPhysicianId() != null) {
+                                existingPhysician.setPhysicianId(physician.getPhysicianId());
+                            }
+                            if (physician.getName() != null) {
+                                existingPhysician.setName(physician.getName());
+                            }
+                            if (physician.getCreated() != null) {
+                                existingPhysician.setCreated(physician.getCreated());
+                            }
+                            if (physician.getModified() != null) {
+                                existingPhysician.setModified(physician.getModified());
+                            }
+                            if (physician.getCreatedBy() != null) {
+                                existingPhysician.setCreatedBy(physician.getCreatedBy());
+                            }
+                            if (physician.getModifiedBy() != null) {
+                                existingPhysician.setModifiedBy(physician.getModifiedBy());
+                            }
 
-                    return existingPhysician;
-                }
-            )
-            .map(physicianRepository::save);
+                            return existingPhysician;
+                        }
+                )
+                .map(physicianRepository::save);
     }
 
     @Override

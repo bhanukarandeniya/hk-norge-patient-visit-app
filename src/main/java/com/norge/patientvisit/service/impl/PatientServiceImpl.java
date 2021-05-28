@@ -3,14 +3,14 @@ package com.norge.patientvisit.service.impl;
 import com.norge.patientvisit.domain.Patient;
 import com.norge.patientvisit.repository.PatientRepository;
 import com.norge.patientvisit.service.PatientService;
-import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 /**
  * Service Implementation for managing {@link Patient}.
@@ -38,35 +38,35 @@ public class PatientServiceImpl implements PatientService {
         log.debug("Request to partially update Patient : {}", patient);
 
         return patientRepository
-            .findById(patient.getId())
-            .map(
-                existingPatient -> {
-                    if (patient.getPatientId() != null) {
-                        existingPatient.setPatientId(patient.getPatientId());
-                    }
-                    if (patient.getName() != null) {
-                        existingPatient.setName(patient.getName());
-                    }
-                    if (patient.getDob() != null) {
-                        existingPatient.setDob(patient.getDob());
-                    }
-                    if (patient.getGender() != null) {
-                        existingPatient.setGender(patient.getGender());
-                    }
-                    if (patient.getCreated() != null) {
-                        existingPatient.setCreated(patient.getCreated());
-                    }
-                    if (patient.getModified() != null) {
-                        existingPatient.setModified(patient.getModified());
-                    }
-                    if (patient.getCreatedBy() != null) {
-                        existingPatient.setCreatedBy(patient.getCreatedBy());
-                    }
+                .findById(patient.getId())
+                .map(
+                        existingPatient -> {
+                            if (patient.getPatientId() != null) {
+                                existingPatient.setPatientId(patient.getPatientId());
+                            }
+                            if (patient.getName() != null) {
+                                existingPatient.setName(patient.getName());
+                            }
+                            if (patient.getDob() != null) {
+                                existingPatient.setDob(patient.getDob());
+                            }
+                            if (patient.getGender() != null) {
+                                existingPatient.setGender(patient.getGender());
+                            }
+                            if (patient.getCreated() != null) {
+                                existingPatient.setCreated(patient.getCreated());
+                            }
+                            if (patient.getModified() != null) {
+                                existingPatient.setModified(patient.getModified());
+                            }
+                            if (patient.getCreatedBy() != null) {
+                                existingPatient.setCreatedBy(patient.getCreatedBy());
+                            }
 
-                    return existingPatient;
-                }
-            )
-            .map(patientRepository::save);
+                            return existingPatient;
+                        }
+                )
+                .map(patientRepository::save);
     }
 
     @Override

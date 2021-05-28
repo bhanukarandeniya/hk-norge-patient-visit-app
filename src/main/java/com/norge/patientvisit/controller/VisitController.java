@@ -63,15 +63,15 @@ public class VisitController {
         }
         Visit result = visitService.save(visit);
         return ResponseEntity
-            .created(new URI("/api/visits/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
-            .body(result);
+                .created(new URI("/api/visits/" + result.getId()))
+                .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+                .body(result);
     }
 
     /**
      * {@code PUT  /visits/:id} : Updates an existing visit.
      *
-     * @param id the id of the visit to save.
+     * @param id    the id of the visit to save.
      * @param visit the visit to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated visit,
      * or with status {@code 400 (Bad Request)} if the visit is not valid,
@@ -80,7 +80,7 @@ public class VisitController {
      */
     @PutMapping("/visits/{id}")
     public ResponseEntity<Visit> updateVisit(@PathVariable(value = "id", required = false) final Long id, @Valid @RequestBody Visit visit)
-        throws URISyntaxException {
+            throws URISyntaxException {
         log.debug("REST request to update Visit : {}, {}", id, visit);
         if (visit.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -95,15 +95,15 @@ public class VisitController {
 
         Visit result = visitService.save(visit);
         return ResponseEntity
-            .ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, visit.getId().toString()))
-            .body(result);
+                .ok()
+                .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, visit.getId().toString()))
+                .body(result);
     }
 
     /**
      * {@code PATCH  /visits/:id} : Partial updates given fields of an existing visit, field will ignore if it is null
      *
-     * @param id the id of the visit to save.
+     * @param id    the id of the visit to save.
      * @param visit the visit to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated visit,
      * or with status {@code 400 (Bad Request)} if the visit is not valid,
@@ -113,8 +113,8 @@ public class VisitController {
      */
     @PatchMapping(value = "/visits/{id}", consumes = "application/merge-patch+json")
     public ResponseEntity<Visit> partialUpdateVisit(
-        @PathVariable(value = "id", required = false) final Long id,
-        @NotNull @RequestBody Visit visit
+            @PathVariable(value = "id", required = false) final Long id,
+            @NotNull @RequestBody Visit visit
     ) throws URISyntaxException {
         log.debug("REST request to partial update Visit partially : {}, {}", id, visit);
         if (visit.getId() == null) {
@@ -131,8 +131,8 @@ public class VisitController {
         Optional<Visit> result = visitService.partialUpdate(visit);
 
         return ResponseUtil.wrapOrNotFound(
-            result,
-            HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, visit.getId().toString())
+                result,
+                HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, visit.getId().toString())
         );
     }
 
@@ -174,8 +174,8 @@ public class VisitController {
         log.debug("REST request to delete Visit : {}", id);
         visitService.delete(id);
         return ResponseEntity
-            .noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-            .build();
+                .noContent()
+                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+                .build();
     }
 }

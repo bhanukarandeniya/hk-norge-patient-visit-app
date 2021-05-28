@@ -63,15 +63,15 @@ public class PhysicianController {
         }
         Physician result = physicianService.save(physician);
         return ResponseEntity
-            .created(new URI("/api/physicians/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
-            .body(result);
+                .created(new URI("/api/physicians/" + result.getId()))
+                .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+                .body(result);
     }
 
     /**
      * {@code PUT  /physicians/:id} : Updates an existing physician.
      *
-     * @param id the id of the physician to save.
+     * @param id        the id of the physician to save.
      * @param physician the physician to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated physician,
      * or with status {@code 400 (Bad Request)} if the physician is not valid,
@@ -80,8 +80,8 @@ public class PhysicianController {
      */
     @PutMapping("/physicians/{id}")
     public ResponseEntity<Physician> updatePhysician(
-        @PathVariable(value = "id", required = false) final Long id,
-        @Valid @RequestBody Physician physician
+            @PathVariable(value = "id", required = false) final Long id,
+            @Valid @RequestBody Physician physician
     ) throws URISyntaxException {
         log.debug("REST request to update Physician : {}, {}", id, physician);
         if (physician.getId() == null) {
@@ -97,15 +97,15 @@ public class PhysicianController {
 
         Physician result = physicianService.save(physician);
         return ResponseEntity
-            .ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, physician.getId().toString()))
-            .body(result);
+                .ok()
+                .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, physician.getId().toString()))
+                .body(result);
     }
 
     /**
      * {@code PATCH  /physicians/:id} : Partial updates given fields of an existing physician, field will ignore if it is null
      *
-     * @param id the id of the physician to save.
+     * @param id        the id of the physician to save.
      * @param physician the physician to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated physician,
      * or with status {@code 400 (Bad Request)} if the physician is not valid,
@@ -115,8 +115,8 @@ public class PhysicianController {
      */
     @PatchMapping(value = "/physicians/{id}", consumes = "application/merge-patch+json")
     public ResponseEntity<Physician> partialUpdatePhysician(
-        @PathVariable(value = "id", required = false) final Long id,
-        @NotNull @RequestBody Physician physician
+            @PathVariable(value = "id", required = false) final Long id,
+            @NotNull @RequestBody Physician physician
     ) throws URISyntaxException {
         log.debug("REST request to partial update Physician partially : {}, {}", id, physician);
         if (physician.getId() == null) {
@@ -133,8 +133,8 @@ public class PhysicianController {
         Optional<Physician> result = physicianService.partialUpdate(physician);
 
         return ResponseUtil.wrapOrNotFound(
-            result,
-            HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, physician.getId().toString())
+                result,
+                HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, physician.getId().toString())
         );
     }
 
@@ -176,8 +176,8 @@ public class PhysicianController {
         log.debug("REST request to delete Physician : {}", id);
         physicianService.delete(id);
         return ResponseEntity
-            .noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-            .build();
+                .noContent()
+                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+                .build();
     }
 }
