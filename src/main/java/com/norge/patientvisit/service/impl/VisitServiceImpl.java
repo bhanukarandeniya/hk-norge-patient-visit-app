@@ -40,8 +40,8 @@ public class VisitServiceImpl implements VisitService {
             .findById(visit.getId())
             .map(
                 existingVisit -> {
-                    if (visit.getvisitDate() != null) {
-                        existingVisit.setvisitDate(visit.getvisitDate());
+                    if (visit.getVisitDate() != null) {
+                        existingVisit.setVisitDate(visit.getVisitDate());
                     }
                     if (visit.getReason() != null) {
                         existingVisit.setReason(visit.getReason());

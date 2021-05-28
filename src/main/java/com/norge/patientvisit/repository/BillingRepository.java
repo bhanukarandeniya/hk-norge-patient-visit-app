@@ -9,4 +9,6 @@ import org.springframework.stereotype.Repository;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface BillingRepository extends JpaRepository<Billing, Long> {}
+public interface BillingRepository extends JpaRepository<Billing, Long> {
+
+}

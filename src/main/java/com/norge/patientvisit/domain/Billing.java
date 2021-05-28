@@ -7,6 +7,7 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Subselect;
 
 /**
  * A Billing.
@@ -14,6 +15,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Entity
 @Table(name = "billing")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@Subselect("")
 public class Billing implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -37,6 +39,10 @@ public class Billing implements Serializable {
     @NotNull
     @Column(name = "billed", nullable = false)
     private Date billed;
+
+    @NotNull
+    @Column(name = "active_record", nullable = false, columnDefinition = "TINYINT  default 1")
+    private Boolean active;
 
     public Long getId() {
         return id;
@@ -103,6 +109,14 @@ public class Billing implements Serializable {
         this.billed = billed;
     }
 
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -123,11 +137,11 @@ public class Billing implements Serializable {
     @Override
     public String toString() {
         return "Billing{" +
-            "id=" + getId() +
-            ", visitId=" + getVisitId() +
-            ", patientId='" + getPatientId() + "'" +
-            ", physicianId='" + getPhysicianId() + "'" +
-            ", billed='" + getBilled() + "'" +
-            "}";
+                "id=" + getId() +
+                ", visitId=" + getVisitId() +
+                ", patientId='" + getPatientId() + "'" +
+                ", physicianId='" + getPhysicianId() + "'" +
+                ", billed='" + getBilled() + "'" +
+                "}";
     }
 }

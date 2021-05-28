@@ -42,6 +42,10 @@ public class Holiday implements Serializable {
     @Column(name = "modified_by", nullable = false)
     private Integer modifiedBy;
 
+    @NotNull
+    @Column(name = "active_record", nullable = false, columnDefinition = "TINYINT  default 1")
+    private Boolean active;
+
     public Long getId() {
         return id;
     }
@@ -115,6 +119,13 @@ public class Holiday implements Serializable {
         this.modifiedBy = modifiedBy;
     }
 
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
 
     @Override
     public boolean equals(Object o) {

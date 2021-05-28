@@ -26,7 +26,7 @@ public class Patient implements Serializable {
     private Long id;
 
     @NotNull
-    @Column(name = "patient_id", nullable = false)
+    @Column(name = "patient_id", nullable = false, unique = true)
     private String patientId;
 
     @NotNull
@@ -52,6 +52,10 @@ public class Patient implements Serializable {
     @NotNull
     @Column(name = "created_by", nullable = false)
     private Integer createdBy;
+
+    @NotNull
+    @Column(name = "active_record", nullable = false, columnDefinition = "TINYINT  default 1")
+    private Boolean active;
 
     @OneToMany(mappedBy = "patientId")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
@@ -193,6 +197,13 @@ public class Patient implements Serializable {
         this.visits = visits;
     }
 
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
 
     @Override
     public boolean equals(Object o) {

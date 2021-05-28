@@ -45,6 +45,10 @@ public class Visit implements Serializable {
     @Column(name = "modified_by", nullable = false)
     private Integer modifiedBy;
 
+    @NotNull
+    @Column(name = "active_record", nullable = false, columnDefinition = "TINYINT  default 1")
+    private Boolean active;
+
     @ManyToOne
     @JsonIgnoreProperties(value = { "visits" }, allowSetters = true)
     private Patient patientId;
@@ -64,19 +68,6 @@ public class Visit implements Serializable {
     public Visit id(Long id) {
         this.id = id;
         return this;
-    }
-
-    public Date getvisitDate() {
-        return this.visitDate;
-    }
-
-    public Visit visitDate(Date visitDate) {
-        this.visitDate = visitDate;
-        return this;
-    }
-
-    public void setvisitDate(Date visitDate) {
-        this.visitDate = visitDate;
     }
 
     public String getReason() {
@@ -170,6 +161,21 @@ public class Visit implements Serializable {
         this.physicianId = physician;
     }
 
+    public Date getVisitDate() {
+        return visitDate;
+    }
+
+    public void setVisitDate(Date visitDate) {
+        this.visitDate = visitDate;
+    }
+
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -192,7 +198,7 @@ public class Visit implements Serializable {
     public String toString() {
         return "Visit{" +
             "id=" + getId() +
-            ", visitDate='" + getvisitDate() + "'" +
+            ", visitDate='" + getVisitDate() + "'" +
             ", reason='" + getReason() + "'" +
             ", created='" + getCreated() + "'" +
             ", modified='" + getModified() + "'" +
