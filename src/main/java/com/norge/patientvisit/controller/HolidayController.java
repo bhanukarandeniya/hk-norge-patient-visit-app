@@ -25,9 +25,9 @@ import java.util.Optional;
  */
 @RestController
 @RequestMapping("/api")
-public class HolidayResource {
+public class HolidayController {
 
-    private final Logger log = LoggerFactory.getLogger(HolidayResource.class);
+    private final Logger log = LoggerFactory.getLogger(HolidayController.class);
 
     private static final String ENTITY_NAME = "holiday";
 
@@ -38,7 +38,7 @@ public class HolidayResource {
 
     private final HolidayRepository holidayRepository;
 
-    public HolidayResource(HolidayService holidayService, HolidayRepository holidayRepository) {
+    public HolidayController(HolidayService holidayService, HolidayRepository holidayRepository) {
         this.holidayService = holidayService;
         this.holidayRepository = holidayRepository;
     }

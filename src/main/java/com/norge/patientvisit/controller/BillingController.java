@@ -25,9 +25,9 @@ import java.util.Optional;
  */
 @RestController
 @RequestMapping("/api")
-public class BillingResource {
+public class BillingController {
 
-    private final Logger log = LoggerFactory.getLogger(BillingResource.class);
+    private final Logger log = LoggerFactory.getLogger(BillingController.class);
 
     private static final String ENTITY_NAME = "billing";
 
@@ -38,7 +38,7 @@ public class BillingResource {
 
     private final BillingRepository billingRepository;
 
-    public BillingResource(BillingService billingService, BillingRepository billingRepository) {
+    public BillingController(BillingService billingService, BillingRepository billingRepository) {
         this.billingService = billingService;
         this.billingRepository = billingRepository;
     }

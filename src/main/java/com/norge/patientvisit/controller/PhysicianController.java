@@ -30,9 +30,9 @@ import java.util.Optional;
  */
 @RestController
 @RequestMapping("/api")
-public class PhysicianResource {
+public class PhysicianController {
 
-    private final Logger log = LoggerFactory.getLogger(PhysicianResource.class);
+    private final Logger log = LoggerFactory.getLogger(PhysicianController.class);
 
     private static final String ENTITY_NAME = "physician";
 
@@ -43,7 +43,7 @@ public class PhysicianResource {
 
     private final PhysicianRepository physicianRepository;
 
-    public PhysicianResource(PhysicianService physicianService, PhysicianRepository physicianRepository) {
+    public PhysicianController(PhysicianService physicianService, PhysicianRepository physicianRepository) {
         this.physicianService = physicianService;
         this.physicianRepository = physicianRepository;
     }

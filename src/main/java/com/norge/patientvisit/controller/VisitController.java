@@ -30,9 +30,9 @@ import java.util.Optional;
  */
 @RestController
 @RequestMapping("/api")
-public class VisitResource {
+public class VisitController {
 
-    private final Logger log = LoggerFactory.getLogger(VisitResource.class);
+    private final Logger log = LoggerFactory.getLogger(VisitController.class);
 
     private static final String ENTITY_NAME = "visit";
 
@@ -43,7 +43,7 @@ public class VisitResource {
 
     private final VisitRepository visitRepository;
 
-    public VisitResource(VisitService visitService, VisitRepository visitRepository) {
+    public VisitController(VisitService visitService, VisitRepository visitRepository) {
         this.visitService = visitService;
         this.visitRepository = visitRepository;
     }
