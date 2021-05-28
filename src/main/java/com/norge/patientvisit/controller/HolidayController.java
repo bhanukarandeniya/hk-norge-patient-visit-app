@@ -88,7 +88,7 @@ public class HolidayController {
     public ResponseEntity<_HolidayDto> updateHoliday(
             @PathVariable(value = "id", required = false) final Long id,
             @Valid @RequestBody _HolidayDto holiday
-    ) throws URISyntaxException, ClassNotFoundException {
+    ) throws  ClassNotFoundException {
         log.debug("REST request to update Holiday : {}, {}", id, holiday);
         if (holiday.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -123,7 +123,7 @@ public class HolidayController {
     public ResponseEntity<_HolidayDto> partialUpdateHoliday(
             @PathVariable(value = "id", required = false) final Long id,
             @NotNull @RequestBody _HolidayDto holiday
-    ) throws URISyntaxException, ClassNotFoundException {
+    ) throws ClassNotFoundException {
         log.debug("REST request to partial update Holiday partially : {}, {}", id, holiday);
         if (holiday.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
