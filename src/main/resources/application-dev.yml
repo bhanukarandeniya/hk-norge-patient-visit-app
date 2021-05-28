@@ -16,10 +16,11 @@ spring:
   jpa:
     show-sql: true
 
-jhipster:
-    clientApp:
-        name: test
+norge:
+  clientApp:
+    name: test
 
 server:
   port: 8080
 
+#  http://localhost:8080/swagger-ui/

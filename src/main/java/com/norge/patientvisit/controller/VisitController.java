@@ -36,7 +36,7 @@ public class VisitController {
 
     private static final String ENTITY_NAME = "visit";
 
-    @Value("${jhipster.clientApp.name}")
+    @Value("${norge.clientApp.name}")
     private String applicationName;
 
     private final VisitService visitService;

@@ -36,7 +36,7 @@ public class PhysicianController {
 
     private static final String ENTITY_NAME = "physician";
 
-    @Value("${jhipster.clientApp.name}")
+    @Value("${norge.clientApp.name}")
     private String applicationName;
 
     private final PhysicianService physicianService;

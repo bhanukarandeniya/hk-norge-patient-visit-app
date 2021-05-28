@@ -31,7 +31,7 @@ public class HolidayController {
 
     private static final String ENTITY_NAME = "holiday";
 
-    @Value("${jhipster.clientApp.name}")
+    @Value("${norge.clientApp.name}")
     private String applicationName;
 
     private final HolidayService holidayService;
