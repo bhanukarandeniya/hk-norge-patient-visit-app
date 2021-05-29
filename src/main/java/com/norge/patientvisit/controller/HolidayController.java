@@ -3,8 +3,8 @@ package com.norge.patientvisit.controller;
 import com.norge.patientvisit.controller.errors.BadRequestAlertException;
 import com.norge.patientvisit.domain.Holiday;
 import com.norge.patientvisit.dto.DtoConverter;
-import com.norge.patientvisit.dto._HolidayDto;
-import com.norge.patientvisit.dto._HolidayPageDto;
+import com.norge.patientvisit.dto.HolidayDto;
+import com.norge.patientvisit.dto.HolidayPageDto;
 import com.norge.patientvisit.repository.HolidayRepository;
 import com.norge.patientvisit.service.HolidayService;
 import org.slf4j.Logger;
@@ -45,10 +45,10 @@ public class HolidayController {
 
     private final HolidayRepository holidayRepository;
 
-    private final DtoConverter<Holiday, _HolidayDto> dtoDtoConverter;
+    private final DtoConverter<Holiday, HolidayDto> dtoDtoConverter;
 
     public HolidayController(HolidayService holidayService, HolidayRepository holidayRepository,
-                             DtoConverter<Holiday, _HolidayDto> dtoDtoConverter) {
+                             DtoConverter<Holiday, HolidayDto> dtoDtoConverter) {
         this.holidayService = holidayService;
         this.holidayRepository = holidayRepository;
         this.dtoDtoConverter = dtoDtoConverter;
@@ -62,7 +62,7 @@ public class HolidayController {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/holidays")
-    public ResponseEntity<_HolidayDto> createHoliday(@Valid @RequestBody _HolidayDto holiday) throws URISyntaxException, ClassNotFoundException {
+    public ResponseEntity<HolidayDto> createHoliday(@Valid @RequestBody HolidayDto holiday) throws URISyntaxException, ClassNotFoundException {
         log.debug("REST request to save Holiday : {}", holiday);
         if (holiday.getId() != null) {
             throw new BadRequestAlertException("A new holiday cannot already have an ID", ENTITY_NAME, "idexists");
@@ -71,7 +71,7 @@ public class HolidayController {
         return ResponseEntity
                 .created(new URI("/api/holidays/" + result.getId()))
                 .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
-                .body(dtoDtoConverter.convertToDto(result, _HolidayDto.class));
+                .body(dtoDtoConverter.convertToDto(result, HolidayDto.class));
     }
 
     /**
@@ -85,9 +85,9 @@ public class HolidayController {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/holidays/{id}")
-    public ResponseEntity<_HolidayDto> updateHoliday(
+    public ResponseEntity<HolidayDto> updateHoliday(
             @PathVariable(value = "id", required = false) final Long id,
-            @Valid @RequestBody _HolidayDto holiday
+            @Valid @RequestBody HolidayDto holiday
     ) throws  ClassNotFoundException {
         log.debug("REST request to update Holiday : {}, {}", id, holiday);
         if (holiday.getId() == null) {
@@ -105,7 +105,7 @@ public class HolidayController {
         return ResponseEntity
                 .ok()
                 .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, holiday.getId().toString()))
-                .body(dtoDtoConverter.convertToDto(result, _HolidayDto.class));
+                .body(dtoDtoConverter.convertToDto(result, HolidayDto.class));
     }
 
     /**
@@ -120,9 +120,9 @@ public class HolidayController {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/holidays/{id}", consumes = "application/merge-patch+json")
-    public ResponseEntity<_HolidayDto> partialUpdateHoliday(
+    public ResponseEntity<HolidayDto> partialUpdateHoliday(
             @PathVariable(value = "id", required = false) final Long id,
-            @NotNull @RequestBody _HolidayDto holiday
+            @NotNull @RequestBody HolidayDto holiday
     ) throws ClassNotFoundException {
         log.debug("REST request to partial update Holiday partially : {}, {}", id, holiday);
         if (holiday.getId() == null) {
@@ -139,7 +139,7 @@ public class HolidayController {
         Optional<Holiday> result = holidayService.partialUpdate(dtoDtoConverter.convertToEntity(holiday, Holiday.class));
 
         return ResponseUtil.wrapOrNotFound(
-                Optional.of(dtoDtoConverter.convertToDto(result.get(), _HolidayDto.class)),
+                Optional.of(dtoDtoConverter.convertToDto(result.get(), HolidayDto.class)),
                 HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, holiday.getId().toString())
         );
     }
@@ -150,12 +150,12 @@ public class HolidayController {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of holidays in body.
      */
     @GetMapping("/holidays")
-    public ResponseEntity<_HolidayPageDto> getAllHolidays(Pageable pageable) throws ClassNotFoundException {
+    public ResponseEntity<HolidayPageDto> getAllHolidays(Pageable pageable) throws ClassNotFoundException {
         log.debug("REST request to get a page Holidays");
         Page<Holiday> page = holidayService.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).
-                body(new _HolidayPageDto().setList(dtoDtoConverter.convertToList(page.getContent(), _HolidayDto.class)));
+                body(new HolidayPageDto().setList(dtoDtoConverter.convertToList(page.getContent(), HolidayDto.class)));
     }
 
     /**
@@ -165,10 +165,10 @@ public class HolidayController {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the holiday, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/holidays/{id}")
-    public ResponseEntity<_HolidayDto> getHoliday(@PathVariable Long id) throws ClassNotFoundException {
+    public ResponseEntity<HolidayDto> getHoliday(@PathVariable Long id) throws ClassNotFoundException {
         log.debug("REST request to get Holiday : {}", id);
         Optional<Holiday> holiday = holidayService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(Optional.of(dtoDtoConverter.convertToDto(holiday.get(), _HolidayDto.class)));
+        return ResponseUtil.wrapOrNotFound(Optional.of(dtoDtoConverter.convertToDto(holiday.get(), HolidayDto.class)));
     }
 
     /**

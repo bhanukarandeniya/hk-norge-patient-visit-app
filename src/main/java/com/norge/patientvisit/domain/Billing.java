@@ -42,7 +42,7 @@ public class Billing implements Serializable {
 
     @NotNull
     @Column(name = "active_record", nullable = false)
-    private boolean active;
+    private Boolean active = true;
 
     public Long getId() {
         return id;

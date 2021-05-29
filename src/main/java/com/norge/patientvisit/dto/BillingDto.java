@@ -3,7 +3,7 @@ package com.norge.patientvisit.dto;
 import java.io.Serializable;
 import java.util.Date;
 
-public class _BillingDto implements Serializable {
+public class BillingDto implements Serializable {
 
     private Long id;
 

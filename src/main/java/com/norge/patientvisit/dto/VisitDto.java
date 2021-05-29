@@ -3,13 +3,13 @@ package com.norge.patientvisit.dto;
 import java.io.Serializable;
 import java.util.Date;
 
-public class _PhysicianDto implements Serializable {
+public class VisitDto implements Serializable {
 
     private Long id;
 
-    private String physicianId;
+    private Date visitDate;
 
-    private String name;
+    private String reason;
 
     private Date created;
 
@@ -18,5 +18,11 @@ public class _PhysicianDto implements Serializable {
     private Integer createdBy;
 
     private Integer modifiedBy;
+
+    private Boolean active;
+
+    private PatientDto patientId;
+
+    private PhysicianDto physicianId;
 
 }
