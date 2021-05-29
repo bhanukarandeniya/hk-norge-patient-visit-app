@@ -7,18 +7,18 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
-public class HolidayException extends AbstractThrowableProblem {
+public class HolidayEntityCreationException extends AbstractThrowableProblem {
 
     private final String entityName;
 
     private final String errorKey;
 
-    public HolidayException(String defaultMessage, String entityName, String errorKey) {
+    public HolidayEntityCreationException(String defaultMessage, String entityName, String errorKey) {
         this(ErrorConstants.DEFAULT_TYPE, defaultMessage, entityName, errorKey);
     }
 
-    public HolidayException(URI type, String defaultMessage, String entityName, String errorKey) {
-        super(type, defaultMessage, Status.BAD_REQUEST, null, null, null, getAlertParameters(entityName, errorKey));
+    public HolidayEntityCreationException(URI type, String defaultMessage, String entityName, String errorKey) {
+        super(type, defaultMessage, Status.BAD_REQUEST, defaultMessage, null, null, getAlertParameters(entityName, errorKey));
         this.entityName = entityName;
         this.errorKey = errorKey;
     }

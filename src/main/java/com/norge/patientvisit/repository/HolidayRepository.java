@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -15,6 +16,8 @@ import java.util.List;
 @Repository
 public interface HolidayRepository extends JpaRepository<Holiday, Long> {
 
-    Page<Holiday> findHolidaysByActive(Pageable pageable,boolean active);
+    Page<Holiday> findHolidaysByActive(Pageable pageable, boolean active);
+
+    List<Holiday> findHolidaysByHolidayDate(Date date);
 
 }

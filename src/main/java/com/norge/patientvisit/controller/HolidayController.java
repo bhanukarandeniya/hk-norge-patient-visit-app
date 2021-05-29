@@ -1,6 +1,8 @@
 package com.norge.patientvisit.controller;
 
 import com.norge.patientvisit.controller.errors.BadRequestAlertException;
+import com.norge.patientvisit.controller.errors.ErrorConstants;
+import com.norge.patientvisit.controller.errors.HolidayEntityCreationException;
 import com.norge.patientvisit.domain.Holiday;
 import com.norge.patientvisit.dto.DtoConverter;
 import com.norge.patientvisit.dto.HolidayDto;
@@ -10,6 +12,7 @@ import com.norge.patientvisit.service.HolidayService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -65,9 +68,16 @@ public class HolidayController {
     public ResponseEntity<HolidayDto> createHoliday(@Valid @RequestBody HolidayDto holiday) throws URISyntaxException, ClassNotFoundException {
         log.debug("REST request to save Holiday : {}", holiday);
         if (holiday.getId() != null) {
-            throw new BadRequestAlertException("A new holiday cannot already have an ID", ENTITY_NAME, "idexists");
+            throw new BadRequestAlertException("A new holiday cannot already have an ID", ENTITY_NAME, "id exists");
+        } else if (!holidayService.validateCreateModifyDate()) {
+            throw new HolidayEntityCreationException(ErrorConstants.HOLIDAY_ENTITY_CREATE_ERROR, ENTITY_NAME, "created or modified invalid");
         }
-        Holiday result = holidayService.save(dtoDtoConverter.convertToEntity(holiday, Holiday.class));
+        Holiday result;
+        try {
+            result = holidayService.save(dtoDtoConverter.convertToEntity(holiday, Holiday.class));
+        } catch (DataIntegrityViolationException e) {
+            throw new BadRequestAlertException(ErrorConstants.ENTITY_DUPLICATION_ERROR, ENTITY_NAME, "holidayDate exist");
+        }
         return ResponseEntity
                 .created(new URI("/api/holidays/" + result.getId()))
                 .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
@@ -85,23 +95,26 @@ public class HolidayController {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/holidays/{id}")
-    public ResponseEntity<HolidayDto> updateHoliday(
-            @PathVariable(value = "id", required = false) final Long id,
-            @Valid @RequestBody HolidayDto holiday
-    ) throws  ClassNotFoundException {
+    public ResponseEntity<HolidayDto> updateHoliday(@PathVariable(value = "id", required = false) final Long id,
+                                                    @Valid @RequestBody HolidayDto holiday
+    ) throws ClassNotFoundException {
         log.debug("REST request to update Holiday : {}, {}", id, holiday);
         if (holiday.getId() == null) {
-            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "id null");
+        } else if (!Objects.equals(id, holiday.getId())) {
+            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "id invalid");
+        } else if (!holidayRepository.existsById(id)) {
+            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "id not found");
+        } else if (!holidayService.validateCreateModifyDate()) {
+            throw new HolidayEntityCreationException(ErrorConstants.HOLIDAY_ENTITY_CREATE_ERROR, ENTITY_NAME,
+                    "created or modified invalid");
         }
-        if (!Objects.equals(id, holiday.getId())) {
-            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
+        Holiday result;
+        try {
+            result = holidayService.save(dtoDtoConverter.convertToEntity(holiday, Holiday.class));
+        } catch (DataIntegrityViolationException e) {
+            throw new BadRequestAlertException(ErrorConstants.ENTITY_DUPLICATION_ERROR, ENTITY_NAME, "holidayDate exist");
         }
-
-        if (!holidayRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
-        }
-
-        Holiday result = holidayService.save(dtoDtoConverter.convertToEntity(holiday, Holiday.class));
         return ResponseEntity
                 .ok()
                 .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, holiday.getId().toString()))
@@ -127,16 +140,21 @@ public class HolidayController {
         log.debug("REST request to partial update Holiday partially : {}, {}", id, holiday);
         if (holiday.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
-        }
-        if (!Objects.equals(id, holiday.getId())) {
+        } else if (!Objects.equals(id, holiday.getId())) {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
-        }
-
-        if (!holidayRepository.existsById(id)) {
+        } else if (!holidayRepository.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
+        } else if (!holidayService.validateCreateModifyDate()) {
+            throw new HolidayEntityCreationException(ErrorConstants.HOLIDAY_ENTITY_CREATE_ERROR, ENTITY_NAME,
+                    "created or modified invalid");
         }
 
-        Optional<Holiday> result = holidayService.partialUpdate(dtoDtoConverter.convertToEntity(holiday, Holiday.class));
+        Optional<Holiday> result;
+        try {
+            result = holidayService.partialUpdate(dtoDtoConverter.convertToEntity(holiday, Holiday.class));
+        } catch (DataIntegrityViolationException e) {
+            throw new BadRequestAlertException(ErrorConstants.ENTITY_DUPLICATION_ERROR, ENTITY_NAME, "holidayDate exist");
+        }
 
         return ResponseUtil.wrapOrNotFound(
                 Optional.of(dtoDtoConverter.convertToDto(result.get(), HolidayDto.class)),
@@ -180,6 +198,10 @@ public class HolidayController {
     @DeleteMapping("/holidays/{id}")
     public ResponseEntity<Void> deleteHoliday(@PathVariable Long id) {
         log.debug("REST request to delete Holiday : {}", id);
+        if (!holidayService.validateCreateModifyDate()) {
+            throw new HolidayEntityCreationException(ErrorConstants.HOLIDAY_ENTITY_CREATE_ERROR, ENTITY_NAME,
+                    "created or modified invalid");
+        }
         Holiday entity = holidayService.findOne(id).get();
         entity.setActive(false);
         holidayService.partialUpdate(entity);

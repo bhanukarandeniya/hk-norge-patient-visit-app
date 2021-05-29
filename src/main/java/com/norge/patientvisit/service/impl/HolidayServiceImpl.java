@@ -3,6 +3,7 @@ package com.norge.patientvisit.service.impl;
 import com.norge.patientvisit.domain.Holiday;
 import com.norge.patientvisit.repository.HolidayRepository;
 import com.norge.patientvisit.service.HolidayService;
+import com.norge.patientvisit.util.DateTimeUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.Optional;
 
 /**
@@ -30,6 +32,7 @@ public class HolidayServiceImpl implements HolidayService {
     @Override
     public Holiday save(Holiday holiday) {
         log.debug("Request to save Holiday : {}", holiday);
+        holiday.setHolidayDate(DateTimeUtility.setTimeToZero(holiday.getHolidayDate()));
         return holidayRepository.save(holiday);
     }
 
@@ -42,7 +45,7 @@ public class HolidayServiceImpl implements HolidayService {
                 .map(
                         existingHoliday -> {
                             if (holiday.getHolidayDate() != null) {
-                                existingHoliday.setHolidayDate(holiday.getHolidayDate());
+                                existingHoliday.setHolidayDate(DateTimeUtility.setTimeToZero(holiday.getHolidayDate()));
                             }
                             if (holiday.getCreated() != null) {
                                 existingHoliday.setCreated(holiday.getCreated());
@@ -86,4 +89,10 @@ public class HolidayServiceImpl implements HolidayService {
         log.debug("Request to delete Holiday : {}", id);
         holidayRepository.deleteById(id);
     }
+
+    @Override
+    public boolean validateCreateModifyDate() {
+        return holidayRepository.findHolidaysByHolidayDate(new Date()).isEmpty();
+    }
+
 }

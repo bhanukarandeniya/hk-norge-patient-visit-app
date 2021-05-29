@@ -23,7 +23,7 @@ public class Holiday implements Serializable {
     private Long id;
 
     @NotNull
-    @Column(name = "holiday_date", nullable = false)
+    @Column(name = "holiday_date", unique = true, nullable = false)
     private Date holidayDate;
 
     @NotNull

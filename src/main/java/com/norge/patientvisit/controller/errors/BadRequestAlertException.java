@@ -18,7 +18,8 @@ public class BadRequestAlertException extends AbstractThrowableProblem {
     }
 
     public BadRequestAlertException(URI type, String defaultMessage, String entityName, String errorKey) {
-        super(type, defaultMessage, Status.BAD_REQUEST, null, null, null, getAlertParameters(entityName, errorKey));
+        super(type, defaultMessage, Status.BAD_REQUEST, defaultMessage, null,
+                null, getAlertParameters(entityName, errorKey));
         this.entityName = entityName;
         this.errorKey = errorKey;
     }
@@ -33,8 +34,8 @@ public class BadRequestAlertException extends AbstractThrowableProblem {
 
     private static Map<String, Object> getAlertParameters(String entityName, String errorKey) {
         Map<String, Object> parameters = new HashMap<>();
-        parameters.put("message", "error." + errorKey);
-        parameters.put("params", entityName);
+        parameters.put("message", "error : " + errorKey);
+        parameters.put("Entity ", entityName);
         return parameters;
     }
 }
