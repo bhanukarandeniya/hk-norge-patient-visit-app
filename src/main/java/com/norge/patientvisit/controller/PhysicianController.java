@@ -82,7 +82,6 @@ public class PhysicianController {
         } catch (DataIntegrityViolationException e) {
             throw new BadRequestAlertException(ErrorConstants.ENTITY_DUPLICATION_ERROR, ENTITY_NAME, "physicianId exist");
         }
-
         return ResponseEntity
                 .created(new URI("/api/physicians/" + result.getId()))
                 .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
@@ -112,7 +111,12 @@ public class PhysicianController {
         } else if (!holidayService.validateCreateModifyDate()) {
             throw new HolidayEntityCreationException(ErrorConstants.HOLIDAY_ENTITY_CREATE_ERROR, ENTITY_NAME, "created or modified invalid");
         }
-        Physician result = physicianService.save(dtoDtoConverter.convertToEntity(physician, Physician.class));
+        Physician result;
+        try {
+            result = physicianService.save(dtoDtoConverter.convertToEntity(physician, Physician.class));
+        } catch (DataIntegrityViolationException e) {
+            throw new BadRequestAlertException(ErrorConstants.ENTITY_DUPLICATION_ERROR, ENTITY_NAME, "physicianId already exist in DB");
+        }
         return ResponseEntity
                 .ok()
                 .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, physician.getId().toString()))
@@ -131,7 +135,7 @@ public class PhysicianController {
      */
     @PatchMapping(value = "/physicians/{id}", consumes = "application/merge-patch+json")
     public ResponseEntity<PhysicianDto> partialUpdatePhysician(@PathVariable(value = "id") final Long id,
-                                                               @NotNull @RequestBody Physician physician)
+                                                               @NotNull @RequestBody PhysicianDto physician)
             throws ClassNotFoundException {
         log.debug("REST request to partial update Physician partially : {}, {}", id, physician);
         if (physician.getId() == null) {
@@ -141,11 +145,15 @@ public class PhysicianController {
         } else if (physicianService.findOneWithActiveStatus(id).isEmpty()) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "id not found");
         }
-        Optional<Physician> result = physicianService.partialUpdate(physician);
+        Optional<Physician> result;
+        try {
+            result = physicianService.partialUpdate(dtoDtoConverter.convertToEntity(physician, Physician.class));
+        } catch (DataIntegrityViolationException e) {
+            throw new BadRequestAlertException(ErrorConstants.ENTITY_DUPLICATION_ERROR, ENTITY_NAME, "physicianId already exist in DB");
+        }
         return ResponseUtil.wrapOrNotFound(
                 Optional.of(dtoDtoConverter.convertToDto(result.get(), Physician.class)),
-                HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, physician.getId().toString())
-        );
+                HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, physician.getId().toString()));
     }
 
     /**
@@ -160,7 +168,7 @@ public class PhysicianController {
         Page<Physician> page = physicianService.findPhysiciansByActive(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).
-                body(new PhysicianPageDto().setList(dtoDtoConverter.convertToDtoList(page.getContent(), PhysicianPageDto.class)));
+                body(new PhysicianPageDto().setList(dtoDtoConverter.convertToDtoList(page.getContent(), PhysicianDto.class)));
     }
 
     /**

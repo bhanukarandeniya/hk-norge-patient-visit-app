@@ -110,7 +110,12 @@ public class PatientController {
         } else if (!holidayService.validateCreateModifyDate()) {
             throw new HolidayEntityCreationException(ErrorConstants.HOLIDAY_ENTITY_CREATE_ERROR, ENTITY_NAME, "created or modified invalid");
         }
-        Patient result = patientService.save(dtoDtoConverter.convertToEntity(patient, Patient.class));
+        Patient result;
+        try {
+            result = patientService.save(dtoDtoConverter.convertToEntity(patient, Patient.class));
+        } catch (DataIntegrityViolationException e) {
+            throw new BadRequestAlertException(ErrorConstants.ENTITY_DUPLICATION_ERROR, ENTITY_NAME, "patientId already exist in DB");
+        }
         return ResponseEntity
                 .ok()
                 .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, patient.getId().toString()))
@@ -141,11 +146,15 @@ public class PatientController {
         } else if (!holidayService.validateCreateModifyDate()) {
             throw new HolidayEntityCreationException(ErrorConstants.HOLIDAY_ENTITY_CREATE_ERROR, ENTITY_NAME, "created or modified invalid");
         }
-        Optional<Patient> result = patientService.partialUpdate(dtoDtoConverter.convertToEntity(patient, Patient.class));
+        Optional<Patient> result;
+        try {
+            result = patientService.partialUpdate(dtoDtoConverter.convertToEntity(patient, Patient.class));
+        } catch (DataIntegrityViolationException e) {
+            throw new BadRequestAlertException(ErrorConstants.ENTITY_DUPLICATION_ERROR, ENTITY_NAME, "patientId already exist in DB");
+        }
         return ResponseUtil.wrapOrNotFound(
                 Optional.of(dtoDtoConverter.convertToDto(result.get(), PatientDto.class)),
-                HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, patient.getId().toString())
-        );
+                HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, patient.getId().toString()));
     }
 
     /**
