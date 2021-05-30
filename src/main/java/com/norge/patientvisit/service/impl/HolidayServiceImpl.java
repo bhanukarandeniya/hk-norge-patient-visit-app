@@ -92,7 +92,11 @@ public class HolidayServiceImpl implements HolidayService {
 
     @Override
     public boolean validateCreateModifyDate() {
-        return holidayRepository.findHolidaysByHolidayDate(new Date()).isEmpty();
+        return holidayRepository.findHolidaysByHolidayDate(DateTimeUtility.setTimeToZero(new Date())).isEmpty();
     }
 
+    @Override
+    public Optional<Holiday> findOneWithActiveStatus(Long id) {
+        return holidayRepository.findHolidayByIdAndActive(id, true);
+    }
 }

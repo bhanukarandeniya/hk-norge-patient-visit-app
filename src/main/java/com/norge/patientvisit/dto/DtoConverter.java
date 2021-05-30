@@ -26,7 +26,7 @@ public class DtoConverter<E, D> {
         return value;
     }
 
-    public List<D> convertToList(List<E> entityList, Class c) throws ClassNotFoundException {
+    public List<D> convertToDtoList(List<E> entityList, Class c) throws ClassNotFoundException {
         List<D> list = new ArrayList<>();
         for (E e : entityList) {
             list.add(convertToDto(e, c));

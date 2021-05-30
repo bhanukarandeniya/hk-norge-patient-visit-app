@@ -57,7 +57,7 @@ public class Patient implements Serializable {
     @Column(name = "active_record", nullable = false)
     private Boolean active = true;
 
-    @OneToMany(mappedBy = "patientId")
+    @OneToMany(mappedBy = "patientId", fetch = FetchType.EAGER)
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @JsonIgnoreProperties(value = {"patientId", "physicianId"}, allowSetters = true)
     private Set<Visit> visits = new HashSet<>();

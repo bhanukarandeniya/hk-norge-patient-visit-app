@@ -71,9 +71,9 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<Patient> findAll(Pageable pageable) {
+    public Page<Patient> findPatientsByActive(Pageable pageable) {
         log.debug("Request to get all Patients");
-        return patientRepository.findAll(pageable);
+        return patientRepository.findPatientsByActive(pageable, true);
     }
 
     @Override
@@ -88,4 +88,10 @@ public class PatientServiceImpl implements PatientService {
         log.debug("Request to delete Patient : {}", id);
         patientRepository.deleteById(id);
     }
+
+    @Override
+    public Optional<Patient> findOneWithActiveStatus(Long id) {
+        return patientRepository.findPatientByIdAndActive(id, true);
+    }
+
 }
