@@ -62,7 +62,6 @@ public class HolidayController {
      *
      * @param holiday the holiday to create.
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new holiday, or with status {@code 400 (Bad Request)} if the holiday has already an ID.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/holidays")
     public ResponseEntity<HolidayDto> createHoliday(@Valid @RequestBody HolidayDto holiday)
@@ -93,7 +92,6 @@ public class HolidayController {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated holiday,
      * or with status {@code 400 (Bad Request)} if the holiday is not valid,
      * or with status {@code 500 (Internal Server Error)} if the holiday couldn't be updated.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/holidays/{id}")
     public ResponseEntity<HolidayDto> updateHoliday(@PathVariable(value = "id") final Long id,
@@ -126,7 +124,6 @@ public class HolidayController {
      * or with status {@code 400 (Bad Request)} if the holiday is not valid,
      * or with status {@code 404 (Not Found)} if the holiday is not found,
      * or with status {@code 500 (Internal Server Error)} if the holiday couldn't be updated.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/holidays/{id}", consumes = "application/merge-patch+json")
     public ResponseEntity<HolidayDto> partialUpdateHoliday(@PathVariable(value = "id") final Long id,

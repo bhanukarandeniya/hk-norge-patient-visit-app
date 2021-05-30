@@ -66,7 +66,6 @@ public class PatientController {
      *
      * @param patient the patient to create.
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new patient, or with status {@code 400 (Bad Request)} if the patient has already an ID.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/patients")
     public ResponseEntity<PatientDto> createPatient(@Valid @RequestBody PatientDto patient) throws URISyntaxException,
@@ -97,7 +96,6 @@ public class PatientController {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated patient,
      * or with status {@code 400 (Bad Request)} if the patient is not valid,
      * or with status {@code 500 (Internal Server Error)} if the patient couldn't be updated.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/patients/{id}")
     public ResponseEntity<PatientDto> updatePatient(@PathVariable(value = "id") final Long id,
@@ -128,7 +126,6 @@ public class PatientController {
      * or with status {@code 400 (Bad Request)} if the patient is not valid,
      * or with status {@code 404 (Not Found)} if the patient is not found,
      * or with status {@code 500 (Internal Server Error)} if the patient couldn't be updated.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/patients/{id}", consumes = "application/merge-patch+json")
     public ResponseEntity<PatientDto> partialUpdatePatient(
