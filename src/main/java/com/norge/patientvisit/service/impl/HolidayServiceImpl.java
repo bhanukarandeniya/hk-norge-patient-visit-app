@@ -95,4 +95,8 @@ public class HolidayServiceImpl implements HolidayService {
         return holidayRepository.findHolidaysByHolidayDate(DateTimeUtility.setTimeToZero(new Date())).isEmpty();
     }
 
+    @Override
+    public Optional<Holiday> findOneWithActiveStatus(Long id) {
+        return holidayRepository.findHolidayByIdAndActive(id, true);
+    }
 }

@@ -1,12 +1,19 @@
 package com.norge.patientvisit.controller;
 
 import com.norge.patientvisit.controller.errors.BadRequestAlertException;
+import com.norge.patientvisit.controller.errors.ErrorConstants;
+import com.norge.patientvisit.controller.errors.HolidayEntityCreationException;
 import com.norge.patientvisit.domain.Patient;
+import com.norge.patientvisit.dto.DtoConverter;
+import com.norge.patientvisit.dto.PatientDto;
+import com.norge.patientvisit.dto.PatientPageDto;
 import com.norge.patientvisit.repository.PatientRepository;
+import com.norge.patientvisit.service.HolidayService;
 import com.norge.patientvisit.service.PatientService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -21,7 +28,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -43,9 +49,16 @@ public class PatientController {
 
     private final PatientRepository patientRepository;
 
-    public PatientController(PatientService patientService, PatientRepository patientRepository) {
+    private final HolidayService holidayService;
+
+    private final DtoConverter<Patient, PatientDto> dtoDtoConverter;
+
+    public PatientController(PatientService patientService, PatientRepository patientRepository,
+                             HolidayService holidayService, DtoConverter<Patient, PatientDto> dtoDtoConverter) {
         this.patientService = patientService;
         this.patientRepository = patientRepository;
+        this.holidayService = holidayService;
+        this.dtoDtoConverter = dtoDtoConverter;
     }
 
     /**
@@ -56,12 +69,20 @@ public class PatientController {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/patients")
-    public ResponseEntity<Patient> createPatient(@Valid @RequestBody Patient patient) throws URISyntaxException {
+    public ResponseEntity<Patient> createPatient(@Valid @RequestBody PatientDto patient) throws URISyntaxException,
+            ClassNotFoundException {
         log.debug("REST request to save Patient : {}", patient);
         if (patient.getId() != null) {
-            throw new BadRequestAlertException("A new patient cannot already have an ID", ENTITY_NAME, "idexists");
+            throw new BadRequestAlertException("A new patient cannot already have an ID", ENTITY_NAME, "id exists");
+        } else if (!holidayService.validateCreateModifyDate()) {
+            throw new HolidayEntityCreationException(ErrorConstants.HOLIDAY_ENTITY_CREATE_ERROR, ENTITY_NAME, "created or modified invalid");
         }
-        Patient result = patientService.save(patient);
+        Patient result;
+        try {
+            result = patientService.save(dtoDtoConverter.convertToEntity(patient, Patient.class));
+        } catch (DataIntegrityViolationException e) {
+            throw new BadRequestAlertException(ErrorConstants.ENTITY_DUPLICATION_ERROR, ENTITY_NAME, "patientId exist");
+        }
         return ResponseEntity
                 .created(new URI("/api/patients/" + result.getId()))
                 .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
@@ -79,23 +100,24 @@ public class PatientController {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/patients/{id}")
-    public ResponseEntity<Patient> updatePatient(
-            @PathVariable(value = "id", required = false) final Long id,
-            @Valid @RequestBody Patient patient
-    ) throws URISyntaxException {
+    public ResponseEntity<Patient> updatePatient(@PathVariable(value = "id") final Long id,
+            @Valid @RequestBody PatientDto patient
+    ) throws ClassNotFoundException {
         log.debug("REST request to update Patient : {}, {}", id, patient);
         if (patient.getId() == null) {
-            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "id null");
+        } else if (!Objects.equals(id, patient.getId())) {
+            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "id invalid");
+        } else if (!patientRepository.existsById(id)) {
+            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "id not found");
+        }else if (!holidayService.validateCreateModifyDate()) {
+            throw new HolidayEntityCreationException(ErrorConstants.HOLIDAY_ENTITY_CREATE_ERROR, ENTITY_NAME, "created or modified invalid");
         }
-        if (!Objects.equals(id, patient.getId())) {
-            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
+        Optional<Patient> entity = patientService.findOneWithActiveStatus(id);
+        if (entity.isEmpty()) {
+            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "id not found");
         }
-
-        if (!patientRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
-        }
-
-        Patient result = patientService.save(patient);
+        Patient result = patientService.save(dtoDtoConverter.convertToEntity(patient, Patient.class));
         return ResponseEntity
                 .ok()
                 .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, patient.getId().toString()))
@@ -115,23 +137,23 @@ public class PatientController {
      */
     @PatchMapping(value = "/patients/{id}", consumes = "application/merge-patch+json")
     public ResponseEntity<Patient> partialUpdatePatient(
-            @PathVariable(value = "id", required = false) final Long id,
-            @NotNull @RequestBody Patient patient
-    ) throws URISyntaxException {
+            @PathVariable(value = "id") final Long id, @NotNull @RequestBody PatientDto patient
+    ) throws ClassNotFoundException {
         log.debug("REST request to partial update Patient partially : {}, {}", id, patient);
         if (patient.getId() == null) {
-            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "id null");
+        } else if (!Objects.equals(id, patient.getId())) {
+            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "id invalid");
+        } else if (!patientRepository.existsById(id)) {
+            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "id not found");
+        } else if (!holidayService.validateCreateModifyDate()) {
+            throw new HolidayEntityCreationException(ErrorConstants.HOLIDAY_ENTITY_CREATE_ERROR, ENTITY_NAME, "created or modified invalid");
         }
-        if (!Objects.equals(id, patient.getId())) {
-            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
+        Optional<Patient> entity = patientService.findOneWithActiveStatus(id);
+        if (entity.isEmpty()) {
+            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "id not found");
         }
-
-        if (!patientRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
-        }
-
-        Optional<Patient> result = patientService.partialUpdate(patient);
-
+        Optional<Patient> result = patientService.partialUpdate(dtoDtoConverter.convertToEntity(patient, Patient.class));
         return ResponseUtil.wrapOrNotFound(
                 result,
                 HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, patient.getId().toString())
@@ -145,11 +167,12 @@ public class PatientController {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of patients in body.
      */
     @GetMapping("/patients")
-    public ResponseEntity<List<Patient>> getAllPatients(Pageable pageable) {
+    public ResponseEntity<PatientPageDto> getAllPatients(Pageable pageable) throws ClassNotFoundException {
         log.debug("REST request to get a page of Patients");
-        Page<Patient> page = patientService.findAll(pageable);
+        Page<Patient> page = patientService.findPatientsByActive(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity.ok().headers(headers).body(page.getContent());
+        return ResponseEntity.ok().headers(headers).
+                body(new PatientPageDto().setList(dtoDtoConverter.convertToDtoList(page.getContent(), PatientDto.class)));
     }
 
     /**
@@ -159,10 +182,13 @@ public class PatientController {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the patient, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/patients/{id}")
-    public ResponseEntity<Patient> getPatient(@PathVariable Long id) {
+    public ResponseEntity<PatientDto> getPatient(@PathVariable Long id) throws ClassNotFoundException {
         log.debug("REST request to get Patient : {}", id);
-        Optional<Patient> patient = patientService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(patient);
+        Optional<Patient> patient = patientService.findOneWithActiveStatus(id);
+        if (patient.isEmpty()) {
+            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "id not found");
+        }
+        return ResponseUtil.wrapOrNotFound(Optional.of(dtoDtoConverter.convertToDto(patient.get(), PatientDto.class)));
     }
 
     /**
@@ -174,7 +200,12 @@ public class PatientController {
     @DeleteMapping("/patients/{id}")
     public ResponseEntity<Void> deletePatient(@PathVariable Long id) {
         log.debug("REST request to delete Patient : {}", id);
-        patientService.delete(id);
+        Optional<Patient> patient = patientService.findOneWithActiveStatus(id);
+        if (patient.isEmpty()) {
+            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "id not found");
+        }
+        patient.get().setActive(false);
+        patientService.save(patient.get());
         return ResponseEntity
                 .noContent()
                 .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))

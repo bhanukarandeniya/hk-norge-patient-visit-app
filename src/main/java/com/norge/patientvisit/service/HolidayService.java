@@ -51,4 +51,6 @@ public interface HolidayService {
 
     boolean validateCreateModifyDate();
 
+    Optional<Holiday> findOneWithActiveStatus(Long id);
+
 }

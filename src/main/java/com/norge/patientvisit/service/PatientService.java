@@ -32,7 +32,7 @@ public interface PatientService {
      * @param pageable the pagination information.
      * @return the list of entities.
      */
-    Page<Patient> findAll(Pageable pageable);
+    Page<Patient> findPatientsByActive(Pageable pageable);
 
     /**
      * Get the "id" patient.
@@ -48,4 +48,7 @@ public interface PatientService {
      * @param id the id of the entity.
      */
     void delete(Long id);
+
+    Optional<Patient> findOneWithActiveStatus(Long id);
+
 }

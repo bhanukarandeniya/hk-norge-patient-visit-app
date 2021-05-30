@@ -95,7 +95,7 @@ public class HolidayController {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/holidays/{id}")
-    public ResponseEntity<HolidayDto> updateHoliday(@PathVariable(value = "id", required = false) final Long id,
+    public ResponseEntity<HolidayDto> updateHoliday(@PathVariable(value = "id") final Long id,
                                                     @Valid @RequestBody HolidayDto holiday
     ) throws ClassNotFoundException {
         log.debug("REST request to update Holiday : {}, {}", id, holiday);
@@ -109,12 +109,11 @@ public class HolidayController {
             throw new HolidayEntityCreationException(ErrorConstants.HOLIDAY_ENTITY_CREATE_ERROR, ENTITY_NAME,
                     "created or modified invalid");
         }
-        Holiday result;
-        try {
-            result = holidayService.save(dtoDtoConverter.convertToEntity(holiday, Holiday.class));
-        } catch (DataIntegrityViolationException e) {
-            throw new BadRequestAlertException(ErrorConstants.ENTITY_DUPLICATION_ERROR, ENTITY_NAME, "holidayDate exist");
+        Optional<Holiday> entity = holidayService.findOneWithActiveStatus(id);
+        if (entity.isEmpty()) {
+            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "id not found");
         }
+        Holiday result = holidayService.save(dtoDtoConverter.convertToEntity(holiday, Holiday.class));
         return ResponseEntity
                 .ok()
                 .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, holiday.getId().toString()))
@@ -133,29 +132,25 @@ public class HolidayController {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/holidays/{id}", consumes = "application/merge-patch+json")
-    public ResponseEntity<HolidayDto> partialUpdateHoliday(
-            @PathVariable(value = "id", required = false) final Long id,
+    public ResponseEntity<HolidayDto> partialUpdateHoliday(@PathVariable(value = "id") final Long id,
             @NotNull @RequestBody HolidayDto holiday
     ) throws ClassNotFoundException {
         log.debug("REST request to partial update Holiday partially : {}, {}", id, holiday);
         if (holiday.getId() == null) {
-            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "id null");
         } else if (!Objects.equals(id, holiday.getId())) {
-            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
+            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "id invalid");
         } else if (!holidayRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
+            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "id not found");
         } else if (!holidayService.validateCreateModifyDate()) {
             throw new HolidayEntityCreationException(ErrorConstants.HOLIDAY_ENTITY_CREATE_ERROR, ENTITY_NAME,
                     "created or modified invalid");
         }
-
-        Optional<Holiday> result;
-        try {
-            result = holidayService.partialUpdate(dtoDtoConverter.convertToEntity(holiday, Holiday.class));
-        } catch (DataIntegrityViolationException e) {
-            throw new BadRequestAlertException(ErrorConstants.ENTITY_DUPLICATION_ERROR, ENTITY_NAME, "holidayDate exist");
+        Optional<Holiday> entity = holidayService.findOneWithActiveStatus(id);
+        if (entity.isEmpty()) {
+            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "id not found");
         }
-
+        Optional<Holiday> result = holidayService.partialUpdate(dtoDtoConverter.convertToEntity(holiday, Holiday.class));
         return ResponseUtil.wrapOrNotFound(
                 Optional.of(dtoDtoConverter.convertToDto(result.get(), HolidayDto.class)),
                 HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, holiday.getId().toString())
@@ -173,7 +168,7 @@ public class HolidayController {
         Page<Holiday> page = holidayService.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).
-                body(new HolidayPageDto().setList(dtoDtoConverter.convertToList(page.getContent(), HolidayDto.class)));
+                body(new HolidayPageDto().setList(dtoDtoConverter.convertToDtoList(page.getContent(), HolidayDto.class)));
     }
 
     /**
@@ -185,7 +180,10 @@ public class HolidayController {
     @GetMapping("/holidays/{id}")
     public ResponseEntity<HolidayDto> getHoliday(@PathVariable Long id) throws ClassNotFoundException {
         log.debug("REST request to get Holiday : {}", id);
-        Optional<Holiday> holiday = holidayService.findOne(id);
+        Optional<Holiday> holiday = holidayService.findOneWithActiveStatus(id);
+        if (holiday.isEmpty()) {
+            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "id not found");
+        }
         return ResponseUtil.wrapOrNotFound(Optional.of(dtoDtoConverter.convertToDto(holiday.get(), HolidayDto.class)));
     }
 
@@ -202,9 +200,12 @@ public class HolidayController {
             throw new HolidayEntityCreationException(ErrorConstants.HOLIDAY_ENTITY_CREATE_ERROR, ENTITY_NAME,
                     "created or modified invalid");
         }
-        Holiday entity = holidayService.findOne(id).get();
-        entity.setActive(false);
-        holidayService.partialUpdate(entity);
+        Optional<Holiday> holiday = holidayService.findOneWithActiveStatus(id);
+        if (holiday.isEmpty()) {
+            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "id not found");
+        }
+        holiday.get().setActive(false);
+        holidayService.save(holiday.get());
         return ResponseEntity
                 .noContent()
                 .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
