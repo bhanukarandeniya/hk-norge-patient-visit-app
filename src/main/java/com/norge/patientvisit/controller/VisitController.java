@@ -53,7 +53,6 @@ public class VisitController {
      *
      * @param visit the visit to create.
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new visit, or with status {@code 400 (Bad Request)} if the visit has already an ID.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/visits")
     public ResponseEntity<Visit> createVisit(@Valid @RequestBody Visit visit) throws URISyntaxException {
@@ -76,7 +75,6 @@ public class VisitController {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated visit,
      * or with status {@code 400 (Bad Request)} if the visit is not valid,
      * or with status {@code 500 (Internal Server Error)} if the visit couldn't be updated.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/visits/{id}")
     public ResponseEntity<Visit> updateVisit(@PathVariable(value = "id", required = false) final Long id, @Valid @RequestBody Visit visit)
@@ -109,7 +107,6 @@ public class VisitController {
      * or with status {@code 400 (Bad Request)} if the visit is not valid,
      * or with status {@code 404 (Not Found)} if the visit is not found,
      * or with status {@code 500 (Internal Server Error)} if the visit couldn't be updated.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/visits/{id}", consumes = "application/merge-patch+json")
     public ResponseEntity<Visit> partialUpdateVisit(

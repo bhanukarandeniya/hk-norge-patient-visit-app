@@ -49,6 +49,12 @@ public interface PatientService {
      */
     void delete(Long id);
 
+    /**
+     * Get the "id" patient with active status true.
+     *
+     * @param id the id of the entity.
+     * @return the entity.
+     */
     Optional<Patient> findOneWithActiveStatus(Long id);
 
 }

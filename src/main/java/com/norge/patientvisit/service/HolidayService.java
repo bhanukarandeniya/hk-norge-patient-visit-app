@@ -49,8 +49,18 @@ public interface HolidayService {
      */
     void delete(Long id);
 
+    /**
+     * Check today is a Holiday persisted on DB
+     * @return boolean.
+     */
     boolean validateCreateModifyDate();
 
+    /**
+     * Get the "id" holiday with active status true.
+     *
+     * @param id the id of the entity.
+     * @return the entity.
+     */
     Optional<Holiday> findOneWithActiveStatus(Long id);
 
 }

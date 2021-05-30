@@ -48,4 +48,23 @@ public interface PhysicianService {
      * @param id the id of the entity.
      */
     void delete(Long id);
+
+
+    /**
+     * Get the "id" Physician  with active status true.
+     *
+     * @param id the id of the entity.
+     * @return the entity.
+     */
+    Optional<Physician> findOneWithActiveStatus(Long id);
+
+
+    /**
+     * Get all the physicians.
+     *
+     * @param pageable the pagination information.
+     * @return the list of entities.
+     */
+    Page<Physician> findPhysiciansByActive(Pageable pageable);
+
 }
