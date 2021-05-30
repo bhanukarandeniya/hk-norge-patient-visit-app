@@ -69,7 +69,7 @@ public class PatientController {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/patients")
-    public ResponseEntity<Patient> createPatient(@Valid @RequestBody PatientDto patient) throws URISyntaxException,
+    public ResponseEntity<PatientDto> createPatient(@Valid @RequestBody PatientDto patient) throws URISyntaxException,
             ClassNotFoundException {
         log.debug("REST request to save Patient : {}", patient);
         if (patient.getId() != null) {
@@ -86,7 +86,7 @@ public class PatientController {
         return ResponseEntity
                 .created(new URI("/api/patients/" + result.getId()))
                 .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
-                .body(result);
+                .body(dtoDtoConverter.convertToDto(result, PatientDto.class));
     }
 
     /**
@@ -100,28 +100,23 @@ public class PatientController {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/patients/{id}")
-    public ResponseEntity<Patient> updatePatient(@PathVariable(value = "id") final Long id,
-            @Valid @RequestBody PatientDto patient
-    ) throws ClassNotFoundException {
+    public ResponseEntity<PatientDto> updatePatient(@PathVariable(value = "id") final Long id,
+                                                    @Valid @RequestBody PatientDto patient) throws ClassNotFoundException {
         log.debug("REST request to update Patient : {}, {}", id, patient);
         if (patient.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "id null");
         } else if (!Objects.equals(id, patient.getId())) {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "id invalid");
-        } else if (!patientRepository.existsById(id)) {
+        } else if (patientService.findOneWithActiveStatus(id).isEmpty()) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "id not found");
-        }else if (!holidayService.validateCreateModifyDate()) {
+        } else if (!holidayService.validateCreateModifyDate()) {
             throw new HolidayEntityCreationException(ErrorConstants.HOLIDAY_ENTITY_CREATE_ERROR, ENTITY_NAME, "created or modified invalid");
-        }
-        Optional<Patient> entity = patientService.findOneWithActiveStatus(id);
-        if (entity.isEmpty()) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "id not found");
         }
         Patient result = patientService.save(dtoDtoConverter.convertToEntity(patient, Patient.class));
         return ResponseEntity
                 .ok()
                 .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, patient.getId().toString()))
-                .body(result);
+                .body(dtoDtoConverter.convertToDto(result, PatientDto.class));
     }
 
     /**
@@ -136,7 +131,7 @@ public class PatientController {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/patients/{id}", consumes = "application/merge-patch+json")
-    public ResponseEntity<Patient> partialUpdatePatient(
+    public ResponseEntity<PatientDto> partialUpdatePatient(
             @PathVariable(value = "id") final Long id, @NotNull @RequestBody PatientDto patient
     ) throws ClassNotFoundException {
         log.debug("REST request to partial update Patient partially : {}, {}", id, patient);
@@ -144,18 +139,14 @@ public class PatientController {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "id null");
         } else if (!Objects.equals(id, patient.getId())) {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "id invalid");
-        } else if (!patientRepository.existsById(id)) {
+        } else if (patientService.findOneWithActiveStatus(id).isEmpty()) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "id not found");
         } else if (!holidayService.validateCreateModifyDate()) {
             throw new HolidayEntityCreationException(ErrorConstants.HOLIDAY_ENTITY_CREATE_ERROR, ENTITY_NAME, "created or modified invalid");
         }
-        Optional<Patient> entity = patientService.findOneWithActiveStatus(id);
-        if (entity.isEmpty()) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "id not found");
-        }
         Optional<Patient> result = patientService.partialUpdate(dtoDtoConverter.convertToEntity(patient, Patient.class));
         return ResponseUtil.wrapOrNotFound(
-                result,
+                Optional.of(dtoDtoConverter.convertToDto(result.get(), PatientDto.class)),
                 HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, patient.getId().toString())
         );
     }

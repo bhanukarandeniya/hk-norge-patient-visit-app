@@ -1,12 +1,19 @@
 package com.norge.patientvisit.controller;
 
 import com.norge.patientvisit.controller.errors.BadRequestAlertException;
+import com.norge.patientvisit.controller.errors.ErrorConstants;
+import com.norge.patientvisit.controller.errors.HolidayEntityCreationException;
 import com.norge.patientvisit.domain.Physician;
+import com.norge.patientvisit.dto.DtoConverter;
+import com.norge.patientvisit.dto.PhysicianDto;
+import com.norge.patientvisit.dto.PhysicianPageDto;
 import com.norge.patientvisit.repository.PhysicianRepository;
+import com.norge.patientvisit.service.HolidayService;
 import com.norge.patientvisit.service.PhysicianService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -21,7 +28,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -43,9 +49,16 @@ public class PhysicianController {
 
     private final PhysicianRepository physicianRepository;
 
-    public PhysicianController(PhysicianService physicianService, PhysicianRepository physicianRepository) {
+    private final DtoConverter<Physician, PhysicianDto> dtoDtoConverter;
+
+    private final HolidayService holidayService;
+
+    public PhysicianController(PhysicianService physicianService, PhysicianRepository physicianRepository,
+                               DtoConverter<Physician, PhysicianDto> dtoDtoConverter, HolidayService holidayService) {
         this.physicianService = physicianService;
         this.physicianRepository = physicianRepository;
+        this.dtoDtoConverter = dtoDtoConverter;
+        this.holidayService = holidayService;
     }
 
     /**
@@ -56,16 +69,25 @@ public class PhysicianController {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/physicians")
-    public ResponseEntity<Physician> createPhysician(@Valid @RequestBody Physician physician) throws URISyntaxException {
+    public ResponseEntity<PhysicianDto> createPhysician(@Valid @RequestBody PhysicianDto physician)
+            throws URISyntaxException, ClassNotFoundException {
         log.debug("REST request to save Physician : {}", physician);
         if (physician.getId() != null) {
-            throw new BadRequestAlertException("A new physician cannot already have an ID", ENTITY_NAME, "idexists");
+            throw new BadRequestAlertException("A new physician cannot already have an ID", ENTITY_NAME, "id exists");
+        } else if (!holidayService.validateCreateModifyDate()) {
+            throw new HolidayEntityCreationException(ErrorConstants.HOLIDAY_ENTITY_CREATE_ERROR, ENTITY_NAME, "created or modified invalid");
         }
-        Physician result = physicianService.save(physician);
+        Physician result;
+        try {
+            result = physicianService.save(dtoDtoConverter.convertToEntity(physician, Physician.class));
+        } catch (DataIntegrityViolationException e) {
+            throw new BadRequestAlertException(ErrorConstants.ENTITY_DUPLICATION_ERROR, ENTITY_NAME, "physicianId exist");
+        }
+
         return ResponseEntity
                 .created(new URI("/api/physicians/" + result.getId()))
                 .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
-                .body(result);
+                .body(dtoDtoConverter.convertToDto(result, PhysicianDto.class));
     }
 
     /**
@@ -79,27 +101,24 @@ public class PhysicianController {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/physicians/{id}")
-    public ResponseEntity<Physician> updatePhysician(
-            @PathVariable(value = "id", required = false) final Long id,
-            @Valid @RequestBody Physician physician
-    ) throws URISyntaxException {
+    public ResponseEntity<PhysicianDto> updatePhysician(@PathVariable(value = "id") final Long id,
+                                                        @Valid @RequestBody PhysicianDto physician
+    ) throws ClassNotFoundException {
         log.debug("REST request to update Physician : {}, {}", id, physician);
         if (physician.getId() == null) {
-            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "id null");
+        } else if (!Objects.equals(id, physician.getId())) {
+            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "id invalid");
+        } else if (physicianService.findOneWithActiveStatus(id).isEmpty()) {
+            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "id not found");
+        } else if (!holidayService.validateCreateModifyDate()) {
+            throw new HolidayEntityCreationException(ErrorConstants.HOLIDAY_ENTITY_CREATE_ERROR, ENTITY_NAME, "created or modified invalid");
         }
-        if (!Objects.equals(id, physician.getId())) {
-            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
-        }
-
-        if (!physicianRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
-        }
-
-        Physician result = physicianService.save(physician);
+        Physician result = physicianService.save(dtoDtoConverter.convertToEntity(physician, Physician.class));
         return ResponseEntity
                 .ok()
                 .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, physician.getId().toString()))
-                .body(result);
+                .body(dtoDtoConverter.convertToDto(result, PhysicianDto.class));
     }
 
     /**
@@ -114,26 +133,20 @@ public class PhysicianController {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/physicians/{id}", consumes = "application/merge-patch+json")
-    public ResponseEntity<Physician> partialUpdatePhysician(
-            @PathVariable(value = "id", required = false) final Long id,
-            @NotNull @RequestBody Physician physician
-    ) throws URISyntaxException {
+    public ResponseEntity<PhysicianDto> partialUpdatePhysician(@PathVariable(value = "id") final Long id,
+                                                               @NotNull @RequestBody Physician physician)
+            throws ClassNotFoundException {
         log.debug("REST request to partial update Physician partially : {}, {}", id, physician);
         if (physician.getId() == null) {
-            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "id null");
+        } else if (!Objects.equals(id, physician.getId())) {
+            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "id invalid");
+        } else if (physicianService.findOneWithActiveStatus(id).isEmpty()) {
+            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "id not found");
         }
-        if (!Objects.equals(id, physician.getId())) {
-            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
-        }
-
-        if (!physicianRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
-        }
-
         Optional<Physician> result = physicianService.partialUpdate(physician);
-
         return ResponseUtil.wrapOrNotFound(
-                result,
+                Optional.of(dtoDtoConverter.convertToDto(result.get(), Physician.class)),
                 HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, physician.getId().toString())
         );
     }
@@ -145,11 +158,12 @@ public class PhysicianController {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of physicians in body.
      */
     @GetMapping("/physicians")
-    public ResponseEntity<List<Physician>> getAllPhysicians(Pageable pageable) {
+    public ResponseEntity<PhysicianPageDto> getAllPhysicians(Pageable pageable) throws ClassNotFoundException {
         log.debug("REST request to get a page of Physicians");
-        Page<Physician> page = physicianService.findAll(pageable);
+        Page<Physician> page = physicianService.findPhysiciansByActive(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity.ok().headers(headers).body(page.getContent());
+        return ResponseEntity.ok().headers(headers).
+                body(new PhysicianPageDto().setList(dtoDtoConverter.convertToDtoList(page.getContent(), PhysicianPageDto.class)));
     }
 
     /**
@@ -159,10 +173,13 @@ public class PhysicianController {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the physician, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/physicians/{id}")
-    public ResponseEntity<Physician> getPhysician(@PathVariable Long id) {
+    public ResponseEntity<PhysicianDto> getPhysician(@PathVariable Long id) throws ClassNotFoundException {
         log.debug("REST request to get Physician : {}", id);
-        Optional<Physician> physician = physicianService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(physician);
+        Optional<Physician> physician = physicianService.findOneWithActiveStatus(id);
+        if (physician.isEmpty()) {
+            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "id not found");
+        }
+        return ResponseUtil.wrapOrNotFound(Optional.of(dtoDtoConverter.convertToDto(physician.get(), PhysicianDto.class)));
     }
 
     /**
@@ -174,7 +191,12 @@ public class PhysicianController {
     @DeleteMapping("/physicians/{id}")
     public ResponseEntity<Void> deletePhysician(@PathVariable Long id) {
         log.debug("REST request to delete Physician : {}", id);
-        physicianService.delete(id);
+        Optional<Physician> physician = physicianService.findOneWithActiveStatus(id);
+        if (physician.isEmpty()) {
+            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "id not found");
+        }
+        physician.get().setActive(false);
+        physicianService.save(physician.get());
         return ResponseEntity
                 .noContent()
                 .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))

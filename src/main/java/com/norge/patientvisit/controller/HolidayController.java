@@ -65,7 +65,8 @@ public class HolidayController {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/holidays")
-    public ResponseEntity<HolidayDto> createHoliday(@Valid @RequestBody HolidayDto holiday) throws URISyntaxException, ClassNotFoundException {
+    public ResponseEntity<HolidayDto> createHoliday(@Valid @RequestBody HolidayDto holiday)
+            throws URISyntaxException, ClassNotFoundException {
         log.debug("REST request to save Holiday : {}", holiday);
         if (holiday.getId() != null) {
             throw new BadRequestAlertException("A new holiday cannot already have an ID", ENTITY_NAME, "id exists");
@@ -96,22 +97,18 @@ public class HolidayController {
      */
     @PutMapping("/holidays/{id}")
     public ResponseEntity<HolidayDto> updateHoliday(@PathVariable(value = "id") final Long id,
-                                                    @Valid @RequestBody HolidayDto holiday
-    ) throws ClassNotFoundException {
+                                                    @Valid @RequestBody HolidayDto holiday)
+            throws ClassNotFoundException {
         log.debug("REST request to update Holiday : {}, {}", id, holiday);
         if (holiday.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "id null");
         } else if (!Objects.equals(id, holiday.getId())) {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "id invalid");
-        } else if (!holidayRepository.existsById(id)) {
+        } else if (holidayService.findOneWithActiveStatus(id).isEmpty()) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "id not found");
         } else if (!holidayService.validateCreateModifyDate()) {
             throw new HolidayEntityCreationException(ErrorConstants.HOLIDAY_ENTITY_CREATE_ERROR, ENTITY_NAME,
                     "created or modified invalid");
-        }
-        Optional<Holiday> entity = holidayService.findOneWithActiveStatus(id);
-        if (entity.isEmpty()) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "id not found");
         }
         Holiday result = holidayService.save(dtoDtoConverter.convertToEntity(holiday, Holiday.class));
         return ResponseEntity
@@ -133,22 +130,18 @@ public class HolidayController {
      */
     @PatchMapping(value = "/holidays/{id}", consumes = "application/merge-patch+json")
     public ResponseEntity<HolidayDto> partialUpdateHoliday(@PathVariable(value = "id") final Long id,
-            @NotNull @RequestBody HolidayDto holiday
-    ) throws ClassNotFoundException {
+                                                           @NotNull @RequestBody HolidayDto holiday)
+            throws ClassNotFoundException {
         log.debug("REST request to partial update Holiday partially : {}, {}", id, holiday);
         if (holiday.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "id null");
         } else if (!Objects.equals(id, holiday.getId())) {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "id invalid");
-        } else if (!holidayRepository.existsById(id)) {
+        } else if (holidayService.findOneWithActiveStatus(id).isEmpty()) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "id not found");
         } else if (!holidayService.validateCreateModifyDate()) {
             throw new HolidayEntityCreationException(ErrorConstants.HOLIDAY_ENTITY_CREATE_ERROR, ENTITY_NAME,
                     "created or modified invalid");
-        }
-        Optional<Holiday> entity = holidayService.findOneWithActiveStatus(id);
-        if (entity.isEmpty()) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "id not found");
         }
         Optional<Holiday> result = holidayService.partialUpdate(dtoDtoConverter.convertToEntity(holiday, Holiday.class));
         return ResponseUtil.wrapOrNotFound(

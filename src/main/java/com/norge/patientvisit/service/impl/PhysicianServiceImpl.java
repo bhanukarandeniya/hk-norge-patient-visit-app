@@ -85,4 +85,14 @@ public class PhysicianServiceImpl implements PhysicianService {
         log.debug("Request to delete Physician : {}", id);
         physicianRepository.deleteById(id);
     }
+
+    @Override
+    public Optional<Physician> findOneWithActiveStatus(Long id) {
+        return physicianRepository.findPhysicianByIdAndActive(id, true);
+    }
+
+    @Override
+    public Page<Physician> findPhysiciansByActive(Pageable pageable) {
+        return physicianRepository.findPhysicianByActive(pageable, true);
+    }
 }
