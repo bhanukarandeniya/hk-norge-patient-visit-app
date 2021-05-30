@@ -108,7 +108,12 @@ public class HolidayController {
             throw new HolidayEntityCreationException(ErrorConstants.HOLIDAY_ENTITY_CREATE_ERROR, ENTITY_NAME,
                     "created or modified invalid");
         }
-        Holiday result = holidayService.save(dtoDtoConverter.convertToEntity(holiday, Holiday.class));
+        Holiday result;
+        try {
+            result = holidayService.save(dtoDtoConverter.convertToEntity(holiday, Holiday.class));
+        } catch (DataIntegrityViolationException e) {
+            throw new BadRequestAlertException(ErrorConstants.ENTITY_DUPLICATION_ERROR, ENTITY_NAME, "holidayDate already exist in DB");
+        }
         return ResponseEntity
                 .ok()
                 .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, holiday.getId().toString()))
@@ -140,7 +145,12 @@ public class HolidayController {
             throw new HolidayEntityCreationException(ErrorConstants.HOLIDAY_ENTITY_CREATE_ERROR, ENTITY_NAME,
                     "created or modified invalid");
         }
-        Optional<Holiday> result = holidayService.partialUpdate(dtoDtoConverter.convertToEntity(holiday, Holiday.class));
+        Optional<Holiday> result;
+        try {
+            result = holidayService.partialUpdate(dtoDtoConverter.convertToEntity(holiday, Holiday.class));
+        } catch (DataIntegrityViolationException e) {
+            throw new BadRequestAlertException(ErrorConstants.ENTITY_DUPLICATION_ERROR, ENTITY_NAME, "holidayDate already exist in DB");
+        }
         return ResponseUtil.wrapOrNotFound(
                 Optional.of(dtoDtoConverter.convertToDto(result.get(), HolidayDto.class)),
                 HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, holiday.getId().toString())

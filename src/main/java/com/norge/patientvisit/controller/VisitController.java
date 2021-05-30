@@ -90,7 +90,6 @@ public class VisitController {
         if (!visitRepository.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
-
         Visit result = visitService.save(visit);
         return ResponseEntity
                 .ok()
